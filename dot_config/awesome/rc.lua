@@ -401,6 +401,8 @@ local globalkeys = gears.table.join(
         { description = "open firefox", group = "launcher" }),
     awful.key({ modkey, }, "a", function() awful.spawn("rofi -show drun") end,
         { description = "open rofi", group = "launcher" }),
+    awful.key({ modkey, }, "b", function() awful.spawn("rofi-bluetooth") end,
+        { description = "open rofi-bluetooth", group = "launcher" }),
     awful.key({ modkey, }, "n", function() awful.spawn("kitty -d ~/repos/root-all -e nvim") end,
         { description = "open nvim", group = "launcher" })
     -- awful.key({ modkey, }, ";", function() awful.spawn("rofi -show drun") end,
