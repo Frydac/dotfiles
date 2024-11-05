@@ -44,12 +44,13 @@ files_to_source=(
    options
    auro_compiler
    plugins_antidote
+   dirs
    # Add new files here
    # extra_config
 )
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]:-${(%):-%x}}" )" && pwd )"
 for file in $files_to_source; do
-   [[ -f "$SCRIPT_DIR/$file" ]] && source "$SCRIPT_DIR/$file"
+   [[ -f "$SCRIPT_DIR/$file.zsh" ]] && source "$SCRIPT_DIR/$file.zsh"
 done
 
 
