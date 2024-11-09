@@ -32,6 +32,7 @@ namespace :install do
         %w[
             base-devel
 
+            asla-utils
             atuin
             bluez
             bluez-utils
@@ -40,6 +41,7 @@ namespace :install do
             firefox
             fzf
             git
+            kitty
             lsd
             npm
             picom
@@ -51,6 +53,7 @@ namespace :install do
             ripgrep
             rofi
             starship
+            timeshift-systemd-timer
             tree
             tree-sitter-cli
             unzip
