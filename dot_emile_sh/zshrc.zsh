@@ -1,6 +1,8 @@
 autoload -Uz edit-command-line
 autoload -Uz add-zsh-hook
 
+export EDITOR=nvim
+
 ##
 # I keep my 'shared' zshrc config in here:
 # This way I can use my config on other ppl's machines without too much hassle (i.e. not replace existing zshrc)
@@ -45,6 +47,7 @@ files_to_source=(
    auro_compiler
    plugins_antidote
    dirs
+   path
    # Add new files here
    # extra_config
 )

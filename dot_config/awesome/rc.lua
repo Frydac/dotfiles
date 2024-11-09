@@ -5,18 +5,6 @@ pcall(require, "luarocks.loader")
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
-
--- {{{ xrandr setup
-
-local screen_main = 'DP-0'
-local screen_secondary = 'DP-4'
-
--- NOTE: this is better in .xinitrc I think which is executed before rc.lua so primary screen is set properly <- does not work when awesome wm is loaded apparently
-awful.util.spawn("xrandr --output " .. screen_main .. " --mode 2560x1440 --rate 144.00 --primary")
-awful.util.spawn("xrandr --output " .. screen_secondary .. " --right-of " .. screen_main)
-
--- }}}
-
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
@@ -34,9 +22,11 @@ require("awful.hotkeys_popup.keys")
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
+    naughty.notify({
+        preset = naughty.config.presets.critical,
         title = "Oops, there were errors during startup!",
-        text = awesome.startup_errors })
+        text = awesome.startup_errors
+    })
 end
 
 -- Handle runtime errors after startup
@@ -47,9 +37,11 @@ do
         if in_error then return end
         in_error = true
 
-        naughty.notify({ preset = naughty.config.presets.critical,
+        naughty.notify({
+            preset = naughty.config.presets.critical,
             title = "Oops, an error happened!",
-            text = tostring(err) })
+            text = tostring(err)
+        })
         in_error = false
     end)
 end
@@ -58,7 +50,7 @@ end
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
-beautiful.init('/home/emile/.config/awesome/theme.4.lua')
+beautiful.init('/home/emile/.config/awesome/themes/theme.lua')
 
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
@@ -95,34 +87,35 @@ awful.layout.layouts = {
 
 -- {{{ Menu
 -- Create a launcher widget and a main menu
-local myawesomemenu = {
-    { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
-    { "manual", terminal .. " -e man awesome" },
+myawesomemenu = {
+    { "hotkeys",     function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
+    { "manual",      terminal .. " -e man awesome" },
     { "edit config", editor_cmd .. " " .. awesome.conffile },
-    { "restart", awesome.restart },
-    { "quit", function() awesome.quit() end },
+    { "restart",     awesome.restart },
+    { "quit",        function() awesome.quit() end },
 }
 
-local mymainmenu = awful.menu({
-    items = {
-        { "awesome", myawesomemenu, beautiful.awesome_icon },
+mymainmenu = awful.menu({
+    items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
         { "open terminal", terminal }
     }
 })
 
-local mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
-    menu = mymainmenu })
+mylauncher = awful.widget.launcher({
+    image = beautiful.awesome_icon,
+    menu = mymainmenu
+})
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- Keyboard map indicator and switcher
-local mykeyboardlayout = awful.widget.keyboardlayout()
+mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-local mytextclock = wibox.widget.textclock()
+mytextclock = wibox.widget.textclock()
 
 -- emile: custom calendar widget
 local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
@@ -165,7 +158,7 @@ local tasklist_buttons = gears.table.join(
         end
     end),
     awful.button({}, 3, function()
-        awful.menu.client_list({ theme = { width = 350 } })
+        awful.menu.client_list({ theme = { width = 250 } })
     end),
     awful.button({}, 4, function()
         awful.client.focus.byidx(1)
@@ -191,15 +184,15 @@ screen.connect_signal("property::geometry", set_wallpaper)
 
 local mytags = {
     names  = {
-        "1 Edit",
-        "2 WWW",
-        "3 Term",
-        "4 Files",
-        "5 IDE",
-        "6 Misc",
-        "7 Misc",
-        "8 Music",
-        "9 Chat"
+        "1 󰏫 ",
+        "2  ",
+        "3   ",
+        "4  ",
+        "5 ",
+        "6 ",
+        "7 ",
+        "8   ",
+        "9 󰭹 "
     },
     layout = {
         awful.layout.layouts[1],
@@ -219,6 +212,7 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
+    -- awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
     awful.tag(mytags.names, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
@@ -254,7 +248,6 @@ awful.screen.connect_for_each_screen(function(s)
     local logout_menu_widget = require("awesome-wm-widgets.logout-menu-widget.logout-menu")
     local net_speed_widget = require("awesome-wm-widgets.net-speed-widget.net-speed")
     local fs_widget = require("awesome-wm-widgets.fs-widget.fs-widget")
-    -- local fs_widget = require("awesome-wm-widgets.fs-widget.fs_widget")
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -266,7 +259,7 @@ awful.screen.connect_for_each_screen(function(s)
             s.mypromptbox,
         },
         s.mytasklist, -- Middle widget
-        { -- Right widgets
+        {             -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
             wibox.widget.systray(),
@@ -293,7 +286,7 @@ root.buttons(gears.table.join(
 -- }}}
 
 -- {{{ Key bindings
-local globalkeys = gears.table.join(
+globalkeys = gears.table.join(
     awful.key({ modkey, }, "s", hotkeys_popup.show_help,
         { description = "show help", group = "awesome" }),
     awful.key({ modkey, }, "Left", awful.tag.viewprev,
@@ -345,7 +338,6 @@ local globalkeys = gears.table.join(
         { description = "reload awesome", group = "awesome" }),
     awful.key({ modkey, "Shift" }, "q", awesome.quit,
         { description = "quit awesome", group = "awesome" }),
-
     awful.key({ modkey, }, "l", function() awful.tag.incmwfact(0.05) end,
         { description = "increase master width factor", group = "layout" }),
     awful.key({ modkey, }, "h", function() awful.tag.incmwfact(-0.05) end,
@@ -393,7 +385,6 @@ local globalkeys = gears.table.join(
     awful.key({ modkey }, "p", function() menubar.show() end,
         { description = "show the menubar", group = "launcher" }),
 
-
     -- emile's keymaps
     awful.key({ modkey, }, "d", function() awful.spawn("doublecmd") end,
         { description = "open doublecmd", group = "launcher" }),
@@ -407,11 +398,9 @@ local globalkeys = gears.table.join(
         { description = "open nvim", group = "launcher" })
     -- awful.key({ modkey, }, ";", function() awful.spawn("rofi -show drun") end,
     --     { description = "open doublecmd", group = "launcher" }),
-
-
 )
 
-local clientkeys = gears.table.join(
+clientkeys = gears.table.join(
     awful.key({ modkey, }, "f",
         function(c)
             c.fullscreen = not c.fullscreen
@@ -505,7 +494,7 @@ for i = 1, 9 do
     )
 end
 
-local clientbuttons = gears.table.join(
+clientbuttons = gears.table.join(
     awful.button({}, 1, function(c)
         c:emit_signal("request::activate", "mouse_click", { raise = true })
     end),
@@ -527,8 +516,10 @@ root.keys(globalkeys)
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
     -- All clients will match this rule.
-    { rule = {},
-        properties = { border_width = beautiful.border_width,
+    {
+        rule = {},
+        properties = {
+            border_width = beautiful.border_width,
             border_color = beautiful.border_normal,
             focus = awful.client.focus.filter,
             raise = true,
@@ -540,65 +531,50 @@ awful.rules.rules = {
     },
 
     -- Floating clients.
-    { rule_any = {
-        instance = {
-            "DTA", -- Firefox addon DownThemAll.
-            "copyq", -- Includes session name in class.
-            "pinentry",
-        },
-        class = {
-            "Arandr",
-            "Blueman-manager",
-            "Gpick",
-            "Kruler",
-            "MessageWin", -- kalarm.
-            "Sxiv",
-            "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
-            "Wpa_gui",
-            "veromix",
-            "xtightvncviewer"
-        },
+    {
+        rule_any = {
+            instance = {
+                "DTA", -- Firefox addon DownThemAll.
+                "copyq", -- Includes session name in class.
+                "pinentry",
+            },
+            class = {
+                "Arandr",
+                "Blueman-manager",
+                "Gpick",
+                "Kruler",
+                "MessageWin", -- kalarm.
+                "Sxiv",
+                "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
+                "Wpa_gui",
+                "veromix",
+                "xtightvncviewer" },
 
-        -- Note that the name property shown in xprop might be set slightly after creation of the client
-        -- and the name shown there might not match defined rules here.
-        name = {
-            "Event Tester", -- xev.
-            "Teensy",
+            -- Note that the name property shown in xprop might be set slightly after creation of the client
+            -- and the name shown there might not match defined rules here.
+            name = {
+                "Event Tester", -- xev.
+            },
+            role = {
+                "AlarmWindow", -- Thunderbird's calendar.
+                "ConfigManager", -- Thunderbird's about:config.
+                "pop-up",  -- e.g. Google Chrome's (detached) Developer Tools.
+            }
         },
-        role = {
-            "AlarmWindow", -- Thunderbird's calendar.
-            "ConfigManager", -- Thunderbird's about:config.
-            "pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
-        }
-    }, properties = { floating = true } },
+        properties = { floating = true }
+    },
 
     -- Add titlebars to normal clients and dialogs
-    { rule_any = { type = { "normal", "dialog" }
-    }, properties = { titlebars_enabled = false }
+    {
+        rule_any = { type = { "normal", "dialog" }
+        },
+        properties = { titlebars_enabled = false }
     },
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
 }
-
-
--- emile: rules for starting programs at boot
-
-local window_pos_rules = {
-    { rule = { class = "firefox" }, properties = { screen = screen_main, tag = mytags.names[2] } },
-    { rule = { class = "Gvim" }, properties = { screen = screen_main, tag = mytags.names[1] } },
-    { rule = { class = "Tilix" }, properties = { screen = screen_main, tag = mytags.names[3] } },
-    { rule = { name = "kitty" }, properties = { screen = screen_main, tag = mytags.names[3] } },
-    { rule = { name = "nvim" }, properties = { screen = screen_main, tag = mytags.names[1] } },
-    { rule = { class = "Slack" }, properties = { screen = screen_main, tag = mytags.names[9] } },
-    { rule = { class = "discord" }, properties = { screen = screen_main, tag = mytags.names[9] } },
-    { rule = { name = "Microsoft Teams" }, properties = { screen = screen_main, tag = mytags.names[7] } },
-
-    { rule = { class = "Gnome-system-monitor" }, properties = { screen = screen_secondary, tag = mytags.names[1] } },
-    { rule = { class = "icemon" }, properties = { screen = screen_secondary, tag = mytags.names[1] } },
-}
-
 -- }}}
 
 -- {{{ Signals
@@ -636,7 +612,7 @@ client.connect_signal("request::titlebars", function(c)
             buttons = buttons,
             layout  = wibox.layout.fixed.horizontal
         },
-        { -- Middle
+        {     -- Middle
             { -- Title
                 align  = "center",
                 widget = awful.titlebar.widget.titlewidget(c)
@@ -663,15 +639,4 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
--- }}}
-
--- {{{
-
-    -- TODO: check if they are runnning already before spawning them
-awful.spawn.once("workrave", awful.rules.rules)
-awful.spawn.once("nm-applet", awful.rules.rules)
-
-    -- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this hame, that way we can open multiple
-    -- kitties and have them in the correct tags
-
 -- }}}
