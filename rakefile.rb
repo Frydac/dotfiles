@@ -78,6 +78,8 @@ namespace :install do
         # git clone https://aur.archlinux.org/yay-bin.git
         # cd yay-bin
         # makepkg -si
+        repos_dir = File.join(Dir.home, 'repos') 
+        FileUtils.mkdir_p(repos_dir)
         Dir.chdir("#{Dir.home}/repos") do
             run_cmd('git clone https://aur.archlinux.org/yay-bin.git')
             Dir.chdir("#{Dir.home}/repos/yay-bin") do
