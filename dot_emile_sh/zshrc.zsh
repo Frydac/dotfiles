@@ -66,9 +66,11 @@ fi
 if command -v atuin > /dev/null; then
     eval "$(atuin init zsh --disable-up-arrow)"
 fi
-
 if command -v starship > /dev/null; then
     eval "$(starship init zsh)"
+fi
+if command -v fzf > /dev/null; then
+    source <(fzf --zsh)
 fi
 
 # This speeds up pasting w/ autosuggest
