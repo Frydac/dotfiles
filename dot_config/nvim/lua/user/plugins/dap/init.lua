@@ -149,7 +149,7 @@ return {
 
             dap.adapters.lldb = {
                 type = "executable",
-                command = "/usr/bin/lldb-dap", -- adjust as needed
+                command = "/usr/bin/lldb-dap", -- lldb-dap used to be lldb-vscode
                 name = "lldb",
             }
 

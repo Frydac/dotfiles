@@ -61,6 +61,9 @@ local function mason_lspconfig_setup_handlers()
         local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
         capabilities = vim.tbl_extend("force", capabilities, cmp_capabilities) -- merge capabilities
     end
+    if IsAvailable('blink.cmp', false) then
+        capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
+    end
 
     local lspconfig = require('lspconfig')
 
@@ -103,7 +106,7 @@ local function mason_lspconfig_setup_handlers()
                 on_attach = default_on_attach,
                 capabilities = capabilities,
                 on_init = function(client, _)
-                    client.server_capabilities.semanticTokensProvider = nil  -- turn off semantic tokens
+                    client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
                 end,
             })
         end
@@ -184,7 +187,7 @@ local lsp_config = {
         {
             "smjonas/inc-rename.nvim",
             config = function()
-                require("inc_rename").setup()
+                require("inc_rename").setup({})
             end,
         }
 
@@ -203,12 +206,16 @@ local lsp_config = {
 
         -- enable/configure lsp servers via lspconfig
         mason_lspconfig_setup_handlers()
-
-
     end
 }
 
 return {
+    -- {
+    --     'mfussenegger/nvim-jdtls',
+    --     config = function()
+    --         require('user.plugins.lsp.jdtls')
+    --     end
+    -- },
     lsp_config,
     require('user.plugins.lsp.clangd')
 }

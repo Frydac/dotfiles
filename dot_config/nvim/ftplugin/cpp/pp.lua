@@ -16,3 +16,7 @@ vim.keymap.set('v', '<leader>pl', [["zyoL(C(<c-r>z));<esc>]], keymap_opts)
 vim.keymap.set('n', '<leader>po', [["zyiwostd::cout << "<c-r>z.has_value(): " << <c-r>z.has_value() << std::endl;<cr>if (<c-r>z.has_value())<cr>    "<c-r>z: " << *<c-r>z << std::endl;<esc>]], keymap_opts)
 -- vim.keymap.set('n', '<leader>po', [["zyiwostd::cout << "<c-r>z.has_value(): "]], keymap_opts)
 -- vim.keymap.set('v', '<leader>po', [["zyostd::cout << "<c-r>z: " << <c-r>z << std::endl;<esc>]], keymap_opts)
+
+-- write ast::to_naft
+vim.keymap.set('n', '<leader>pa', [["zyiwoauro::ast::to_naft(std::cout, <c-r>z);<esc>]], keymap_opts)
+vim.keymap.set('v', '<leader>pa', [["zyoauro::ast::to_naft(std::cout, <c-r>z);<esc>]], keymap_opts)

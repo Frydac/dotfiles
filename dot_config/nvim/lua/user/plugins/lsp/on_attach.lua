@@ -15,7 +15,7 @@ local function symbol_info_handler(err, result, ctx, config)
     end
 
     if result and #result > 0 then
-        L("result: ", result)
+        -- L("result: ", result)
         -- L("result[1]: ", result[1])
         local full_Name = result[1].containerName .. result[1].name
         print("Copied to default register: ", full_Name)

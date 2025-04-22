@@ -3,26 +3,26 @@ return {
     config = function()
         require("debugprint").setup()
     end,
-    keys = {
-        {
-            "<leader>iV",
-            function()
-                return require("debugprint").debugprint({ above = true, variable = true })
-            end,
-            desc = "[i]nsert [V]ariable debug-print above the current line",
-            expr = true,
-            mode = { "n", "v" },
-        },
-        {
-            "<leader>iv",
-            function()
-                return require("debugprint").debugprint({ above = false, variable = true })
-            end,
-            desc = "[i]nsert [v]ariable debug-print below the current line",
-            expr = true,
-            mode = { "n", "v" },
-        },
-    },
+    -- keys = {
+    --     {
+    --         "<leader>iV",
+    --         function()
+    --             return require("debugprint").debugprint({ above = true, variable = true })
+    --         end,
+    --         desc = "[i]nsert [V]ariable debug-print above the current line",
+    --         expr = true,
+    --         mode = { "n", "v" },
+    --     },
+    --     {
+    --         "<leader>iv",
+    --         function()
+    --             return require("debugprint").debugprint({ above = false, variable = true })
+    --         end,
+    --         desc = "[i]nsert [v]ariable debug-print below the current line",
+    --         expr = true,
+    --         mode = { "n", "v" },
+    --     },
+    -- },
 }
 
 

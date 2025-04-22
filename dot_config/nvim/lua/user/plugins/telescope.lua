@@ -2,6 +2,7 @@ local function setup()
     if IsNotAvailable('telescope') then return end
     require('telescope').setup({
         defaults = {
+            -- border = false,
             -- winblend = 10,
             -- prompt_prefix = '  ',
             -- selection_caret = '➤ ',
@@ -40,17 +41,16 @@ local function setup()
     -- vim.api.nvim_set_keymap('n', '<leader>fb', '<cmd>lua require("telescope.builtin").buffers()<cr>', {})
     -- vim.api.nvim_set_keymap('n', '<leader>fh', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
 
-    vim.api.nvim_set_keymap('n', '<leader>ts', '<cmd>lua require("telescope.builtin").lsp_document_symbols()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>tw',
-        '<cmd>lua require("telescope.builtin").lsp_dynamic_workspace_symbols()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>tg', '<cmd>lua require("telescope.builtin").git_status()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>th', '<cmd>lua require("telescope.builtin").help_tags()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>tq', '<cmd>lua require("telescope.builtin").quickfixhistory()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>tm', '<cmd>lua require("telescope.builtin").marks()<cr>', {})
+    vim.keymap.set('n', '<leader>ts', function() require("telescope.builtin").lsp_document_symbols() end, {})
+    vim.keymap.set('n', '<leader>tw', function() require("telescope.builtin").lsp_dynamic_workspace_symbols() end, {})
+    vim.keymap.set('n', '<leader>tg', function() require("telescope.builtin").git_status() end, {})
+    vim.keymap.set('n', '<leader>th', function() require("telescope.builtin").help_tags() end, {})
+    vim.keymap.set('n', '<leader>tq', function() require("telescope.builtin").quickfixhistory() end, {})
+    vim.keymap.set('n', '<leader>tm', function() require("telescope.builtin").marks() end, {})
 
     -- local use_fzf = false
     local use_fzf = false
-    local use_fzf_lua = true
+    local use_fzf_lua = false
 
     if use_fzf then
         -- use fzf functionality
@@ -76,6 +76,15 @@ local function setup()
         vim.keymap.set('n', '<leader>fh', '<cmd>History<cr>', {})
         -- vim.api.nvim_set_keymap('n', '<leader>ts', '<cmd>lua require("telescope.builtin").lsp_document_symbols()<cr>', {})
         vim.keymap.set('n', '<leader>fs', function() require("fzf-lua").lsp_document_symbols() end, {})
+
+        vim.keymap.set('n', '<leader>tf', function() require("telescope.builtin").find_files() end, {})
+        vim.keymap.set('n', '<leader>tu',
+            function() require("telescope.builtin").buffers({ sort_mru = true, tiebreak = function() return false end }) end
+            , {})
+        vim.keymap.set(
+            'n', '<leader>to',
+            function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
+            , {})
     else
         vim.keymap.set('n', '<leader>ff', function() require("telescope.builtin").find_files() end, {})
         vim.keymap.set(
@@ -86,11 +95,10 @@ local function setup()
             'n', '<leader>;',
             function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
             , {})
-        vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
+        -- vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
     end
     vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>',
-        {})
+    vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>', {})
 
     -- find nvim config files (standard location)
     -- vim.api.nvim_set_keymap('n', '<leader>tv',
@@ -156,6 +164,8 @@ return {
             "nvim-telescope/telescope-frecency.nvim",
             config = function()
                 require("telescope").load_extension "frecency"
+
+                vim.keymap.set('n', "<leader>'", '<cmd>Telescope frecency<cr>', {})
             end,
         }
     },

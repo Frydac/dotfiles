@@ -29,10 +29,10 @@ return {
                 " let g:fzf_preview_window = ['hidden,>200(right,50%),<70(up,40%)', 'ctrl-/']
             ]]
 
-            -- vim.cmd [[
-            --     command! -bang -nargs=* History
-            --     \ call fzf#vim#history(fzf#vim#with_preview({'options': '--no-sort'}))
-            -- ]]
+            vim.cmd [[
+                command! -bang -nargs=* History
+                \ call fzf#vim#history(fzf#vim#with_preview({'options': '--no-sort'}))
+            ]]
             --
             -- vim.cmd [[
             --     command! -bang -nargs=* History

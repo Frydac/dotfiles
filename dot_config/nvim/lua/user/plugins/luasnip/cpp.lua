@@ -105,19 +105,19 @@ function Snips.copyright_notice(pos, rfile)
     local crn = string.format([[/**************************************************************************
  * Name: %s
  *
- *  Copyright %d Auro Technologies. All Rights Reserved. Auro-3D and 
- *  the related symbols are registered trademarks of Auro Technologies. 
+ *  Copyright %d Goer Dynamics BV. All Rights Reserved. Auro-3D and 
+ *  the related symbols are registered trademarks of Goer Dynamics BV. 
  *  All materials and technology contained in this work are protected 
  *  by copyright law and may not be reproduced, distributed, transmitted, 
  *  displayed, published or broadcast, in whole or in part, without the 
- *  prior written permission of Auro Technologies NV or in the case of 
+ *  prior written permission of Goer Dyhnamics BV or in the case of 
  *  third party materials, the owner of that content, file and/or method. 
  *  You may not alter or remove any trademark, copyright or other notice 
  *  from copies of the content, file and/or method. All other referenced 
  *  marks are those of their respective owners.
  *  
- *  Auro Technologies, phone +32-(0)-14314343, fax +32-(0)-14321224, 
- *  www.auro-technologies.com, info@auro-technologies.com.
+ *  Goer Dynamics BV, phone +32-(0)-470412197,
+ *  www.auro-3d.com, info@auro-3d.com.
  * 
  *************************************************************************/
  ]]  ,
@@ -643,7 +643,7 @@ end
 Snips.ifdef_cpp = {}
 function Snips.ifdef_cpp.open(pos)
     return sn(pos, t({
-        "#ifdef _cplusplus",
+        "#ifdef __cplusplus",
         "extern \"C\" {",
         "#endif",
         ""
@@ -759,6 +759,7 @@ function Snips.init.c.header_sn(position, is_public)
                 local nodes = {
                     Snips.include_guard.open_t(rfile),
                     nl(),
+                    nl(),
                 }
 
                 if is_public then
@@ -811,7 +812,7 @@ function Snips.init.cpp.header_sn(position, is_public, is_cpp17)
                 local nodes = {
                     Snips.include_guard.open_t(rfile),
                     nl(),
-                    nl()
+                    nl(),
                 }
 
                 if is_public then
@@ -840,11 +841,11 @@ function Snips.init.cpp.header_sn(position, is_public, is_cpp17)
     })
 end
 
-function Snips.init.cpp.source_sn(position, rfile, is_cpp17)
+function Snips.init.cpp.source_sn(position, is_cpp17)
     return sn(position, {
         d(1,
             function()
-                rfile = rfile or rfile_current_buffer()
+                rfile = rfile_current_buffer()
                 local include_str = create_include(rfile)
 
                 return sn(1,
@@ -862,12 +863,12 @@ function Snips.init.cpp.source_sn(position, rfile, is_cpp17)
     })
 end
 
-function Snips.init.test.source_sn(position, rfile, is_cpp17)
+function Snips.init.test.source_sn(position, is_cpp17)
     local pos = PosCounter:new()
     return sn(position, {
         d(1,
             function()
-                rfile = rfile or rfile_current_buffer()
+                rfile = rfile_current_buffer()
                 local include_header_str = create_include(rfile)
                 local nodes = {
                     t({ include_header_str }),
@@ -910,9 +911,9 @@ function Snips.init_sn()
             elseif rfile.pargen_type.hpp then
                 return Snips.init.cpp.header_sn(1, rfile.pargen_type.public, is_cpp17)
             elseif rfile.pargen_type.cpp then
-                return Snips.init.cpp.source_sn(1, rfile.pargen_type.public, is_cpp17)
+                return Snips.init.cpp.source_sn(1, is_cpp17)
             elseif rfile.pargen_type.test then
-                return Snips.init.test.source_sn(1, rfile.pargen_type.public, is_cpp17)
+                return Snips.init.test.source_sn(1, is_cpp17)
             else
                 return sn(nil, t(vim.split(vim.inspect(rfile.pargen_type), "\n")))
             end
@@ -956,9 +957,19 @@ M.setup = function()
         s("dl", Snips.do_log()),
         s("ndl", Snips.do_log_namespace()),
         s("st", t("std::size_t")),
+
+        s("u8", t("std::uint8_t")),
+        s("u16", t("std::uint16_t")),
+        s("u32", t("std::uint32_t")),
+        s("u64", t("std::uint64_t")),
+        s("i8", t("std::int8_t")),
+        s("i16", t("std::int16_t")),
+        s("i32", t("std::int32_t")),
+        s("i64", t("std::int64_t")),
+
         s("ui", Snips.unsigned_int_sn(1)),
         Snips.endl(),
-        s("co", t("std::cout << ")),
+        s("co", t("std::cout")),
         s("s", t("std::")),
         s({
             trig = "i3?2?",

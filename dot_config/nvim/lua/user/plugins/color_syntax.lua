@@ -30,8 +30,8 @@ return {
     -- use 'chaiscript/vim-chaiscript'
     "tankorsmash/vim-chaiscript",
 
-    "vim-pandoc/vim-pandoc",
-    "vim-pandoc/vim-pandoc-syntax",
+    -- "vim-pandoc/vim-pandoc",
+    -- "vim-pandoc/vim-pandoc-syntax",
 
     {
         "norcalli/nvim-colorizer.lua",

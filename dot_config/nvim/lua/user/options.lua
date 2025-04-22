@@ -91,3 +91,12 @@ vim.opt.formatlistpat:append('\\|^-\\s*')
 vim.opt.textwidth = 120
 -- draw line at textwidth
 vim.opt.colorcolumn = '+1'
+
+-- from https://github.com/yetone/avante.nvim
+-- views can only be fully collapsed with the global statusline
+-- There is than 1 statusline for each tabpage, which I don't like very much, maybe in combination with a bufferline at
+-- the top or something.
+-- vim.opt.laststatus = 3
+
+-- vim.o.winborder = "rounded"
+

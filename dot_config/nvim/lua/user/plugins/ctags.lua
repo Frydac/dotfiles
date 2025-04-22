@@ -17,7 +17,7 @@ return {
     {
         "preservim/tagbar",
         config = function()
-            vim.g.tagbar_position = "botright vertical"
+            vim.g.tagbar_position = "botleft vertical"
             -- vim.api.nvim_set_keymap("n", "<leader>tb", "<cmd>TagbarToggle<cr>", {})
             vim.api.nvim_set_keymap("n", "<leader>tb", "<cmd>TagbarOpenAutoClose<cr>", {})
         end,

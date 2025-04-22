@@ -106,11 +106,12 @@ local setup = function()
         print("Error: luasnip failed to require (luansip.init.lua)")
         return
     end
-    local cmp = prequire("cmp")
-    if not cmp then
-        print("Error: cmp failed to require (luansip.init.lua)")
-        return
-    end
+    local cmp = nil
+    -- local cmp = prequire("cmp")
+    -- if not cmp then
+    --     print("Error: cmp failed to require (luansip.init.lua)")
+    --     return
+    -- end
 
     local term = function(str)
         return vim.api.nvim_replace_termcodes(str, true, true, true)

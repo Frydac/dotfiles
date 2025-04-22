@@ -21,7 +21,6 @@ local setup = function()
         'json',
         'json5',
         'jsonc',
-        'latex',
         'lua',
         'make',
         'ninja',
@@ -38,6 +37,7 @@ local setup = function()
         enable = true,
         additional_vim_regex_highlighting = false,
         -- disable = { 'gitcommit' } --stopped working, not sure why
+        disable = { 'markdown' }
     }
     tree_sitter_config.incremental_selection = {
         enable = true,
@@ -283,7 +283,7 @@ return {
     {
         -- Has commands starting with :TSCpp..
         "Badhi/nvim-treesitter-cpp-tools",
-        commit = 'f4ed8029d15977fdc04dadcb3ebdc17882303133'
+        -- commit = 'f4ed8029d15977fdc04dadcb3ebdc17882303133'
     },
     {
         "mrjones2014/nvim-ts-rainbow"

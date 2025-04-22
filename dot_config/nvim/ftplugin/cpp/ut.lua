@@ -131,13 +131,13 @@ local function adjust_bracket_count_current_section(sections, line)
 
 end
 
-local function find_sections_around_cursor(test_cast_line_nr)
+local function find_sections_around_cursor(test_case_line_nr)
     local cursor = vim.api.nvim_win_get_cursor(0)
     local cursor_line_nr = cursor[1] -- 1 based
     local sections = Stack:new()
 
-    -- get all the lines from test_cast_line_nr to current cursor line
-    local lines = vim.api.nvim_buf_get_lines(0, test_cast_line_nr, cursor_line_nr, false) -- 0 based, open end
+    -- get all the lines from test_case_line_nr to current cursor line
+    local lines = vim.api.nvim_buf_get_lines(0, test_case_line_nr, cursor_line_nr, false) -- 0 based, open end
 
     for line_nr, line in ipairs(lines) do
         -- last line = cursor line -> cut off line at cursor
@@ -217,14 +217,14 @@ vim.keymap.set('n', '<leader>aus', function()
     local uri = get_module_uri(rfile)
     local ut = "rake ut[" .. uri
 
-    local tags, test_cast_line_nr = find_test_case_tags()
+    local tags, test_case_line_nr = find_test_case_tags()
     if tags then
         ut = ut .. "," .. table.concat(tags, ":")
     end
 
     ut = ut .. "]"
 
-    local sections = find_sections_around_cursor(test_cast_line_nr)
+    local sections = find_sections_around_cursor(test_case_line_nr)
     if sections then
         ut = ut .. " -- --section-filter-exact \"" .. table.concat(sections, ":") .. "\""
     end
@@ -244,7 +244,6 @@ end, {
 
 -- local line = vim.api.nvim_buf_get_lines(0, cursor[1] - 1, cursor[1], false)[1]
 -- L("line: ", line)
-
 -- rfile.name: : "Process"
 -- rfile.parent: : "/home/emile/repos/root-all/fusion/a3denc/"
 -- rfile.namespace: : "auro/a3denc/v1/task/cx/pca/"
