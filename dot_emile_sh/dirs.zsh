@@ -38,3 +38,7 @@ function d () {
 }
 autoload -Uz compinit && compinit
 compdef _dirs d
+
+function take() {
+  mkdir -p $@ && cd ${@:$#}
+}

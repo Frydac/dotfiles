@@ -91,6 +91,7 @@ local function load_my_snippets()
 
     require('user.plugins.luasnip.cpp').setup()
     require('user.plugins.luasnip.ruby').setup()
+    -- require('user.plugins.luasnip.ruby')
 
 end
 

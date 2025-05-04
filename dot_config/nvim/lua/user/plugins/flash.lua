@@ -3,14 +3,15 @@ return {
     event = "VeryLazy",
     opts = {},
     keys = {
-        {
-            "s",
-            mode = { "n", "x", "o" },
-            function()
-                require("flash").jump()
-            end,
-            desc = "Flash",
-        },
+        -- s used by mini.surround
+        -- {
+        --     "s",
+        --     mode = { "n", "x", "o" },
+        --     function()
+        --         require("flash").jump()
+        --     end,
+        --     desc = "Flash",
+        -- },
         {
             "S",
             -- mode = { "n", "o", "x" },

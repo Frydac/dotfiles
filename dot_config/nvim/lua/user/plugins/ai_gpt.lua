@@ -2,6 +2,7 @@ return {
     {
         "jackMort/ChatGPT.nvim",
         config = function()
+            vim.env.OPENAI_API_KEY = ""
             require("chatgpt").setup({
                 -- optional configuration
             })

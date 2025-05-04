@@ -1,4 +1,5 @@
 zsh-users/zsh-autosuggestions
 zdharma-continuum/fast-syntax-highlighting
 zsh-users/zsh-completions
+# jeffreytse/zsh-vi-mode # this breaks atuin's ctrl-r, tho it seems loaded after the plugins, while manually loading atuin 'after' does work
 # marlonrichert/zsh-autocomplete.git

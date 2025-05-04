@@ -104,30 +104,30 @@ local setup = function()
         },
     }
 
-    if IsAvailable('nvim-treesitter.nt-cpp-tools.output_handlers') then
-        tree_sitter_config.nt_cpp_tools = {
-            enable = true,
-            preview = {
-                quit = 'q',                           -- optional keymapping for quit preview
-                accept = '<tab>'                      -- optional keymapping for accept preview
-            },
-            header_extension = 'h',                   -- optional
-            source_extension = 'cxx',                 -- optional
-            custom_define_class_function_commands = { -- optional
-                TSCppImplWrite = {
-                    output_handle = require 'nvim-treesitter.nt-cpp-tools.output_handlers'.get_add_to_cpp()
-                }
-                --[[
-        <your impl function custom command name> = {
-            output_handle = function (str, context)
-                -- string contains the class implementation
-                -- do whatever you want to do with it
-            end
-        }
-        ]]
-            }
-        }
-    end
+    -- if IsAvailable('nvim-treesitter.nt-cpp-tools.output_handlers') then
+    --     tree_sitter_config.nt_cpp_tools = {
+    --         enable = true,
+    --         preview = {
+    --             quit = 'q',                           -- optional keymapping for quit preview
+    --             accept = '<tab>'                      -- optional keymapping for accept preview
+    --         },
+    --         header_extension = 'h',                   -- optional
+    --         source_extension = 'cxx',                 -- optional
+    --         custom_define_class_function_commands = { -- optional
+    --             TSCppImplWrite = {
+    --                 output_handle = require 'nvim-treesitter.nt-cpp-tools.output_handlers'.get_add_to_cpp()
+    --             }
+    --             --[[
+    --     <your impl function custom command name> = {
+    --         output_handle = function (str, context)
+    --             -- string contains the class implementation
+    --             -- do whatever you want to do with it
+    --         end
+    --     }
+    --     ]]
+    --         }
+    --     }
+    -- end
 
     tree_sitter_config.playground = {
         enable = true,
@@ -283,7 +283,34 @@ return {
     {
         -- Has commands starting with :TSCpp..
         "Badhi/nvim-treesitter-cpp-tools",
-        -- commit = 'f4ed8029d15977fdc04dadcb3ebdc17882303133'
+        dependencies = { "nvim-treesitter/nvim-treesitter" },
+        -- Optional: Configuration
+        opts = function()
+            local options = {
+                preview = {
+                    quit = "q",                       -- optional keymapping for quit preview
+                    accept = "<tab>",                 -- optional keymapping for accept preview
+                },
+                header_extension = "hpp",               -- optional
+                source_extension = "cpp",             -- optional
+                custom_define_class_function_commands = { -- optional
+                    TSCppImplWrite = {
+                        output_handle = require("nt-cpp-tools.output_handlers").get_add_to_cpp(),
+                    },
+                    --[[
+                <your impl function custom command name> = {
+                    output_handle = function (str, context)
+                        -- string contains the class implementation
+                        -- do whatever you want to do with it
+                    end
+                }
+                ]]
+                },
+            }
+            return options
+        end,
+        -- End configuration
+        config = true,
     },
     {
         "mrjones2014/nvim-ts-rainbow"

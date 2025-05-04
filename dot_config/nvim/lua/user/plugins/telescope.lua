@@ -95,6 +95,8 @@ local function setup()
             'n', '<leader>;',
             function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
             , {})
+        -- vim.api.nvim_set_keymap('n', '<leader>fz', '<cmd>Files<cr>', {})
+        vim.keymap.set('n', '<leader>fz', '<cmd>Files<cr>', {})
         -- vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
     end
     vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})
@@ -144,7 +146,7 @@ return {
         {
             "nvim-telescope/telescope-dap.nvim",
             config = function()
-                if IsAvailable("telescope") then
+                if IsAvailable("telescope") and IsAvailable("dap") then
                     require("telescope").load_extension("dap")
                 end
             end,

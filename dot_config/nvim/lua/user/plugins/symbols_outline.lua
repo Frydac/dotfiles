@@ -1,3 +1,5 @@
+
+-- not supported anymore
 return {
     "simrat39/symbols-outline.nvim",
     config = function()

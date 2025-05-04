@@ -87,13 +87,20 @@ local plugins = {
     require('user.plugins.noneckpain'),
     require('user.plugins.rustacean'),
     require('user.plugins.statuscol'),
-    require('user.plugins.symbols_outline'),
+    -- require('user.plugins.symbols_outline'),
     require('user.plugins.tiny_devicons_auto_colors'),
     require('user.plugins.trouble'),
     require('user.plugins.xmake'),
     require('user.plugins.undotree'),
     "milisims/nvim-luaref",
-    "tpope/vim-surround",
+    -- "tpope/vim-surround",
+    { 
+        'echasnovski/mini.surround',
+        version = false,
+        config = function()
+            require("mini.surround").setup()
+        end,
+    },
     "RRethy/nvim-treesitter-endwise",
     "lambdalisue/suda.vim",
     'chrisbra/csv.vim',

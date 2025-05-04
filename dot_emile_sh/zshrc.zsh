@@ -9,6 +9,9 @@ export EDITOR=nvim
 
 # use vim bindingings rather than emacs style bindings
 bindkey -v
+# 10ms for key sequences, so that going into normal mode is much faster
+# not sure if there are any other impacts
+export KEYTIMEOUT=1
 
 # not sure if this is needed, sometimes ctrl-r is not working?
 bindkey '' history-incremental-search-backward
@@ -47,7 +50,6 @@ files_to_source=(
    auro_compiler
    plugins_antidote
    dirs
-   path
    # Add new files here
    # extra_config
 )
@@ -63,15 +65,17 @@ done
 if command -v zoxide > /dev/null; then
     eval "$(zoxide init zsh)"
 fi
-if command -v atuin > /dev/null; then
-    eval "$(atuin init zsh --disable-up-arrow)"
-fi
 if command -v starship > /dev/null; then
     eval "$(starship init zsh)"
 fi
-if command -v fzf > /dev/null; then
+if command -v fzf >/dev/null; then
     source <(fzf --zsh)
 fi
+# NOTE: atuin must be sourced after fzf for ctrl-r
+if command -v atuin > /dev/null; then
+    eval "$(atuin init zsh --disable-up-arrow)"
+fi
+
 
 # This speeds up pasting w/ autosuggest
 # https://github.com/zsh-users/zsh-autosuggestions/issues/238
