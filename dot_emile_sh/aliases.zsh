@@ -88,6 +88,7 @@ alias bt_q='echo "connect to Qudelix-5K (98:8E:79:00:9B:D7)"; bluetoothctl conne
 alias bt_s='echo "connect to Sony WF-1000XM4 (F8:4E:17:E8:62:A1)"; bluetoothctl connect F8:4E:17:E8:62:A1'
 alias bt_s5='echo "connect to Sony WH-1000XM5 (AC:80:0A:CB:55:C6)"; bluetoothctl connect AC:80:0A:CB:55:C6'
 alias bt_m4='echo "connect to MOMENTUM 4 (80:C3:BA:81:45:23)"; bluetoothctl connect 80:C3:BA:81:45:23'
+alias btd_m4='echo "disconnect to MOMENTUM 4 (80:C3:BA:81:45:23)"; bluetoothctl disconnect 80:C3:BA:81:45:23'
 
 # remove branch locally and remotely
 function grmb() {
