@@ -4,14 +4,14 @@ return {
     opts = {},
     keys = {
         -- s used by mini.surround
-        -- {
-        --     "s",
-        --     mode = { "n", "x", "o" },
-        --     function()
-        --         require("flash").jump()
-        --     end,
-        --     desc = "Flash",
-        -- },
+        {
+            "s",
+            mode = { "n", "x", "o" },
+            function()
+                require("flash").jump()
+            end,
+            desc = "Flash",
+        },
         {
             "S",
             -- mode = { "n", "o", "x" },

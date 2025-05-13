@@ -61,6 +61,7 @@ local plugins = {
     -- require("user.plugins.noice"),
     require("user.plugins.colorschemes"),
     require("user.plugins.mini.files"),
+    require("user.plugins.mini.surround"),
     require("user.plugins.oil"),
     require("user.plugins.persistence"),
     require("user.plugins.replacer"),
@@ -94,13 +95,6 @@ local plugins = {
     require('user.plugins.undotree'),
     "milisims/nvim-luaref",
     -- "tpope/vim-surround",
-    { 
-        'echasnovski/mini.surround',
-        version = false,
-        config = function()
-            require("mini.surround").setup()
-        end,
-    },
     "RRethy/nvim-treesitter-endwise",
     "lambdalisue/suda.vim",
     'chrisbra/csv.vim',

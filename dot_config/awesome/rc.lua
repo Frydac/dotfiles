@@ -253,13 +253,25 @@ awful.screen.connect_for_each_screen(function(s)
     s.mywibox = awful.wibar({ position = "top", screen = s })
 
     -- require custom widgets
-    local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
+    -- local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
     local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
     local logout_menu_widget = require("awesome-wm-widgets.logout-menu-widget.logout-menu")
     local net_speed_widget = require("awesome-wm-widgets.net-speed-widget.net-speed")
     local fs_widget = require("awesome-wm-widgets.fs-widget.fs-widget")
     -- local fs_widget = require("awesome-wm-widgets.fs-widget.fs_widget")
+    --
+    -- my_systray = wibox.widget.systray()
+    -- my_systray:set_base_size(32) -- or 20/24 depending on your bar height
 
+    local my_systray = wibox.widget {
+        {
+            widget = wibox.widget.systray,
+            base_size = 24
+        },
+        widget = wibox.container.place,
+        valign = "center",
+        halign = "center"
+    }
     -- Add widgets to the wibox
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
@@ -273,10 +285,11 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
-            wibox.widget.systray(),
-            volume_widget({
-                widget_type = 'arc'
-            }),
+            -- wibox.widget.systray(),
+            my_systray,
+            -- volume_widget({
+            --     widget_type = 'arc'
+            -- }),
             cpu_widget(),
             net_speed_widget(),
             fs_widget(),
@@ -675,6 +688,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
     -- TODO: check if they are runnning already before spawning them
 awful.spawn.once("workrave", awful.rules.rules)
 awful.spawn.once("nm-applet", awful.rules.rules)
+awful.spawn.once("volctl", awful.rules.rules)
 
     -- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this hame, that way we can open multiple
     -- kitties and have them in the correct tags
