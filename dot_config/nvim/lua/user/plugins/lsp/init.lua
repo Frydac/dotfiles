@@ -22,7 +22,7 @@ local function setup_mason_tool_installer()
             'vint',
             'solargraph',
             'clangd',
-            'clang-format',
+            -- 'clang-format',
             'json-lsp',
             'rust-analyzer'
         },
@@ -71,9 +71,9 @@ local function mason_lspconfig_setup_handlers()
     require("mason-lspconfig").setup_handlers({
         -- for servers not listed below
         function(server_name)
-            if vim.fn.hostname() == myhostname then
-                if server_name == 'clangd' then return end
-            end
+            -- if vim.fn.hostname() == myhostname then
+            if server_name == 'clangd' then return end
+            -- end
 
             lspconfig[server_name].setup({
                 on_attach = default_on_attach,
@@ -217,5 +217,5 @@ return {
     --     end
     -- },
     lsp_config,
-    require('user.plugins.lsp.clangd')
+    -- require('user.plugins.lsp.clangd')
 }
