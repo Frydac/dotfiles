@@ -67,50 +67,96 @@ local function mason_lspconfig_setup_handlers()
 
     local lspconfig = require('lspconfig')
 
-    -- only works for servers installed using mason (mason-tool-installer)
-    require("mason-lspconfig").setup_handlers({
-        -- for servers not listed below
-        function(server_name)
-            -- if vim.fn.hostname() == myhostname then
-            if server_name == 'clangd' then return end
-            -- end
-
-            lspconfig[server_name].setup({
-                on_attach = default_on_attach,
-                capabilities = capabilities,
-            })
-        end,
-
-        -- specific server configurations
-        -- NOTE: use the lspconfig name, not the mason name
-        ['solargraph'] = function()
-            lspconfig.solargraph.setup({
-                root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
-                on_attach = default_on_attach,
-            })
-        end,
-
-        ['lua_ls'] = function()
-            require("user.plugins.lsp.sumneko_lua").setup()
-        end,
-
-        ['jdtls'] = function()
-            lspconfig.jdtls.setup({
-                root_dir = lspconfig.util.root_pattern(".git") or lspconfig.util.path.dirname,
-                on_attach = default_on_attach,
-            })
-        end,
-
-        ['clangd'] = function()
-            lspconfig.clangd.setup({
-                on_attach = default_on_attach,
-                capabilities = capabilities,
-                on_init = function(client, _)
-                    client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
-                end,
-            })
-        end
+    require("mason-lspconfig").setup({
+        automatic_enable = false,
+        --     exclude = {
+        -- --         "clangd",
+        -- --         "ccls",
+        -- --         "lua_ls",
+        --         "solargraph",
+        --     }
+        -- }
     })
+
+    lspconfig.solargraph.setup({
+        root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
+        on_attach = default_on_attach,
+    })
+    require("user.plugins.lsp.sumneko_lua").setup()
+    lspconfig.clangd.setup({
+        on_attach = default_on_attach,
+        capabilities = capabilities,
+        on_init = function(client, _)
+            client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
+        end,
+    })
+
+    lspconfig.rust_analyzer.setup {
+        on_attach = default_on_attach,
+        capabilities = capabilities,
+        -- Server-specific settings. See `:help lspconfig-setup`
+        -- settings = {
+        --     ['rust-analyzer'] = {},
+        -- },
+    }
+
+    -- vim.lsp.enable('rust_analyzer')
+    -- vim.lsp.config('rust_analyzer', {
+    --     on_attach = default_on_attach,
+    --     capabilities = capabilities,
+    --     -- Server-specific settings. See `:help lsp-quickstart`
+    --     settings = {
+    --         ['rust-analyzer'] = {
+    --             on_attach = default_on_attach,
+    --             capabilities = capabilities,
+    --         },
+    --     },
+    -- })
+
+    -- only works for servers installed using mason (mason-tool-installer)
+    -- require("mason-lspconfig").setup_handlers({
+    --     -- for servers not listed below
+    --     function(server_name)
+    --         -- if vim.fn.hostname() == myhostname then
+    --         if server_name == 'clangd' then return end
+    --         -- end
+
+    --         lspconfig[server_name].setup({
+    --             on_attach = default_on_attach,
+    --             capabilities = capabilities,
+    --         })
+    --     end,
+
+    --     -- specific server configurations
+    --     -- NOTE: use the lspconfig name, not the mason name
+    --     ['solargraph'] = function()
+    --         lspconfig.solargraph.setup({
+    --             root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
+    --             on_attach = default_on_attach,
+    --         })
+    --     end,
+
+    --     ['lua_ls'] = function()
+    --         require("user.plugins.lsp.sumneko_lua").setup()
+    --     end,
+
+    --     ['jdtls'] = function()
+    --         lspconfig.jdtls.setup({
+    --             root_dir = lspconfig.util.root_pattern(".git") or lspconfig.util.path.dirname,
+    --             on_attach = default_on_attach,
+    --         })
+    --     end,
+
+    --     ['clangd'] = function()
+    --         lspconfig.clangd.setup({
+    --             on_attach = default_on_attach,
+    --             capabilities = capabilities,
+    --             on_init = function(client, _)
+    --                 client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
+    --             end,
+    --         })
+    --     end
+    -- })
 
     -- this is not part of mason
     -- TODO: use capabilities of both clangd and ccls
@@ -197,12 +243,14 @@ local lsp_config = {
         -- }
     },
     config = function()
+        -- before manson-lspconfig
         require("mason").setup()
-        require("mason-lspconfig").setup({
-        })
 
         -- ensure installed
         setup_mason_tool_installer()
+
+        -- require("mason-lspconfig").setup({
+        -- })
 
         -- enable/configure lsp servers via lspconfig
         mason_lspconfig_setup_handlers()

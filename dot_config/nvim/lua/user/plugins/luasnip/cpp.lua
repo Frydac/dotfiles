@@ -966,6 +966,7 @@ M.setup = function()
         s("i16", t("std::int16_t")),
         s("i32", t("std::int32_t")),
         s("i64", t("std::int64_t")),
+        s("opt", t("std::optional<")),
 
         s("ui", Snips.unsigned_int_sn(1)),
         Snips.endl(),
