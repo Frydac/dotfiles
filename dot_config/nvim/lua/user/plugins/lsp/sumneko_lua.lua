@@ -55,11 +55,21 @@ end
 local function basename(path) return path:sub(path:find("/[^/]*$") + 1) end
 
 -- return lua dir in path or nil
+-- local function find_lua_parent(path)
+--     local Path = require('plenary.path')
+--     path = Path:new(path)
+--     for _, parent in pairs(path:parents()) do
+--         if (basename(parent) == "lua") then return parent end
+--     end
+-- end
+
+-- Find parent directory named "lua"
 local function find_lua_parent(path)
-    local Path = require('plenary.path')
-    path = Path:new(path)
-    for _, parent in pairs(path:parents()) do
-        if (basename(parent) == "lua") then return parent end
+    local dir = vim.fs.dirname(path)
+    for parent in vim.fs.parents(dir) do
+        if vim.fs.basename(parent) == "lua" then
+            return parent
+        end
     end
 end
 
@@ -78,7 +88,7 @@ end
 
 -- get_runtime_paths_without_config()
 
-function M.setup()
+function M.setup_old()
 
     -- local lsp_paths = lua_lsp_paths();
 
@@ -140,6 +150,49 @@ function M.setup()
             },
         },
     }
+end
+
+-- return M
+
+
+-- local M = {}
+
+function M.setup()
+    local default_on_attach = require("user.plugins.lsp.on_attach").on_attach
+
+    -- Merge with existing lua_ls defaults
+    vim.lsp.config["lua_ls"] = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.config["lua_ls"] or {},
+        {
+            on_attach = default_on_attach,
+            root_dir = function(fname)
+                return find_lua_parent(fname)
+                    or vim.fs.find(".git", { upward = true, path = fname })[1]
+                    or vim.fs.dirname(fname)
+            end,
+            commands = {
+                Format = {
+                    function()
+                        -- TODO: integrate stylua-nvim here
+                    end,
+                },
+            },
+            settings = {
+                Lua = {
+                    runtime = { version = "LuaJIT" },
+                    diagnostics = { globals = { "vim" } },
+                    workspace = {
+                        library = vim.api.nvim_get_runtime_file("", true),
+                        checkThirdParty = false,
+                    },
+                    telemetry = { enable = false },
+                    completion = { callSnippet = "Replace" },
+                    hint = { enable = true },
+                },
+            },
+        }
+    )
 end
 
 return M

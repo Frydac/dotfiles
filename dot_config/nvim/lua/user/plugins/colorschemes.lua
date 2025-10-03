@@ -59,6 +59,7 @@ local nightfox = {
                     FloatBorder = { bg = palette.bg2 },
                     MasonNormal = { bg = palette.bg0 },
                     LazyNormal = { bg = palette.bg0 },
+                    WinSeparator = { fg = palette.bg0, bg = palette.bg0 },
 
 
                     -- Treesitter

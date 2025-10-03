@@ -1,6 +1,12 @@
+
+print("nightfox.lua required")
+
 return {
     "EdenEast/nightfox.nvim",
+    event = "VimEnter",
     config = function()
+        vim.g.nightfox_loaded = true
+        print("nightfox config executing")
         local palette = require("nightfox.palette").load('nightfox')
         local Color = require("nightfox.lib.color")
         local comment_brighter = Color.new(palette.comment):brighten(5):to_css()
@@ -36,6 +42,7 @@ return {
             },
             groups = {
                 nightfox = {
+                    WinSeparator = { fg = "#aaaaaa" },
                     Comment = { fg = comment_brighter },
                     IndentBlanklineContextChar = { fg = palette.bg3 },
                     IndentBlanklineChar = { fg = palette.bg2 },

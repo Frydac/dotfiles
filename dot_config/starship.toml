@@ -14,6 +14,7 @@ $git_commit\
 $git_state\
 $git_metrics\
 $hg_branch\
+$time\
 $pijul_channel\
 $docker_context\
 $package\
@@ -78,7 +79,6 @@ $cmd_duration\
 $line_break\
 $jobs\
 $battery\
-$time\
 $status\
 $os\
 $container\
@@ -251,3 +251,10 @@ symbol = " "
 
 [zig]
 symbol = " "
+
+[time]
+disabled = false
+format = "🕒 [$time]($style) "
+# format = "🕒 [$time] "
+time_format = "%T"  # This shows HH:MM:SS
+style = "bold cyan"

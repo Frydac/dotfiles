@@ -29,7 +29,7 @@ local plugins = {
     require("user.plugins.cmp"),
     -- require("user.plugins.codeium"),
     require("user.plugins.supermaven"),
-    require("user.plugins.codecompanion"),
+    -- require("user.plugins.codecompanion"),
     require("user.plugins.color_syntax"),
     -- require("user.plugins.mini.comment"),
     require("user.plugins.comment"),
@@ -51,13 +51,15 @@ local plugins = {
     require("user.plugins.lualine"),
     require("user.plugins.luasnip"),
     -- require("user.plugins.markdown-composer"),
+    require("user.plugins.markdown-preview"),
+
     -- require("user.plugins.marks"),
     require("user.plugins.matchup"),
     -- require("user.plugins.multicursor"),
     require("user.plugins.mine"),
     require("user.plugins.neotree"),
     require("user.plugins.neogit"),
-    require("user.plugins.nightfox"),
+    -- require("user.plugins.nightfox"),
     -- require("user.plugins.noice"),
     require("user.plugins.colorschemes"),
     require("user.plugins.mini.files"),
@@ -65,7 +67,7 @@ local plugins = {
     require("user.plugins.oil"),
     require("user.plugins.persistence"),
     require("user.plugins.replacer"),
-    -- require("user.plugins.render_markdown_nvim"),
+    require("user.plugins.render_markdown_nvim"),
     require("user.plugins.sideways"),
     require("user.plugins.symbols"),
     require("user.plugins.surround_nvim"),
@@ -115,10 +117,10 @@ local plugins = {
 }
 
 local options = {
-    install = {
-        -- try to load the colorscheme when installing missing plugins at startup (e.g. before loading any plugins)
-        colorscheme = { 'nightfox' }
-    },
+    -- install = {
+    --     -- try to load the colorscheme when installing missing plugins at startup (e.g. before loading any plugins)
+    --     colorscheme = { 'nightfox' }
+    -- },
     dev = {
         path = "~/repos", -- dir where local plugins are stored
         patterns = { "Frydac" }, -- plugins that match will be searched in repos dir
@@ -127,4 +129,5 @@ local options = {
 }
 
 bootstrap()
+print("lazy.setup() calling")
 require("lazy").setup(plugins, options)

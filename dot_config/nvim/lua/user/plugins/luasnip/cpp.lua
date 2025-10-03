@@ -901,8 +901,8 @@ function Snips.init_sn()
         d(1, function()
             local rfile = RFile:new(util.current_buffer_fn())
             local is_cpp17 = rfile.pargen_type.cpp17 or rfile.pargen_type.cpp20 or rfile.pargen_type.cpp23
-            L("rfile.pargen_type: ", rfile.pargen_type)
-            L("is_cpp17: ", is_cpp17)
+            -- L("rfile.pargen_type: ", rfile.pargen_type)
+            -- L("is_cpp17: ", is_cpp17)
 
             if rfile.pargen_type.h then
                 return Snips.init.c.header_sn(1, rfile.pargen_type.public)

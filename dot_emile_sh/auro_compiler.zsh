@@ -27,6 +27,11 @@ function release {
     auro_reload
 }
 
+function rel_mss {
+    export auro_mode="auro_mss_log_in_release"
+    auro_reload
+}
+
 function noverbose {
     unset auro_verbose=0
     echo "$auro_verbose"

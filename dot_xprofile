@@ -1,8 +1,0 @@
-
-# setup monitors
-xrandr --output DP-0 --mode 2560x1440 --rate 144.00 --primary
-xrandr --output DP-4 --right-of DP-0
-
-
-# use QC theme set with qc5tc or qc6tc configuration utility
-export QT_QPA_PLATFORMTHEME=qt5ct:qt6ct

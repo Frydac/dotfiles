@@ -65,7 +65,7 @@ local function mason_lspconfig_setup_handlers()
         capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
     end
 
-    local lspconfig = require('lspconfig')
+    -- local lspconfig = vim.lsp.config
 
     require("mason-lspconfig").setup({
         automatic_enable = false,
@@ -78,27 +78,65 @@ local function mason_lspconfig_setup_handlers()
         -- }
     })
 
-    lspconfig.solargraph.setup({
-        root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
-        on_attach = default_on_attach,
-    })
+    ------------------------------------------------------------------------------
+    --- new lsp.config api, but doesn't seem an improvment, just more code/work
+    --- below is not starting the lsp servers, and I don't see the lsp laoding spinner anymore
+    ---
+    vim.lsp.config["solargraph"] = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.config["solargraph"] or {},
+        {
+            root_markers = { ".solargraph.yml" }, -- override / add
+            -- root_dir = function(fname)
+            --     return vim.fs.find({ ".solargraph.yml", ".git" }, { upward = true, path = fname })[1]
+            --     or vim.fs.dirname(fname)
+            -- end,
+            on_attach = default_on_attach,
+        }
+    )
+    vim.lsp.enable("solargraph")
+    vim.lsp.config["clangd"] = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.config["clangd"] or {},
+        {
+            on_attach = default_on_attach,
+            capabilities = capabilities,
+            on_init = function(client, _)
+                client.server_capabilities.semanticTokensProvider = nil
+            end,
+        }
+    )
+    vim.lsp.enable("clangd")
+    vim.lsp.config["rust_analyzer"] = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.config["rust_analyzer"] or {},
+        {
+            on_attach = default_on_attach,
+            capabilities = capabilities,
+            -- settings = { ["rust-analyzer"] = {} },
+        }
+    )
+    vim.lsp.enable("rust_analyzer")
     require("user.plugins.lsp.sumneko_lua").setup()
-    lspconfig.clangd.setup({
-        on_attach = default_on_attach,
-        capabilities = capabilities,
-        on_init = function(client, _)
-            client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
-        end,
-    })
 
-    lspconfig.rust_analyzer.setup {
-        on_attach = default_on_attach,
-        capabilities = capabilities,
-        -- Server-specific settings. See `:help lspconfig-setup`
-        -- settings = {
-        --     ['rust-analyzer'] = {},
-        -- },
-    }
+    -- local lspconfig = require('lspconfig')
+    -- lspconfig.solargraph.setup({
+    --     root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
+    --     on_attach = default_on_attach,
+    -- })
+    -- lspconfig.clangd.setup({
+    --     on_attach = default_on_attach,
+    --     capabilities = capabilities,
+    --     on_init = function(client, _)
+    --         client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
+    --     end,
+    -- })
+    -- require("user.plugins.lsp.sumneko_lua").setup_old()
+
+    -- lspconfig.rust_analyzer.setup {
+    --     on_attach = default_on_attach,
+    --     capabilities = capabilities,
+    -- }
 
     -- vim.lsp.enable('rust_analyzer')
     -- vim.lsp.config('rust_analyzer', {
