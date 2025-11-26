@@ -24,7 +24,7 @@ local function setup_mason_tool_installer()
             'clangd',
             -- 'clang-format',
             'json-lsp',
-            'rust-analyzer'
+            -- 'rust-analyzer'
         },
 
         -- if set to true this will check each tool for updates. If updates
@@ -50,9 +50,22 @@ end
 -- local myhostname = "emile-linux-home"
 local myhostname = "wuuut"
 
+-- make buffer keymaps and stuff when lsp server attaches to buffer
+local default_on_attach = require('user.plugins.lsp.on_attach').on_attach
+
+local function setup_server(server_name, capabilities)
+    vim.lsp.config[server_name] = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.config[server_name] or {},
+        {
+            on_attach = default_on_attach,
+            capabilities = capabilities,
+        }
+    )
+    vim.lsp.enable(server_name)
+end
+
 local function mason_lspconfig_setup_handlers()
-    -- make buffer keymaps and stuff when lsp server attaches to buffer
-    local default_on_attach = require('user.plugins.lsp.on_attach').on_attach
 
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     -- L("capabilities: ", capabilities)
@@ -107,17 +120,38 @@ local function mason_lspconfig_setup_handlers()
         }
     )
     vim.lsp.enable("clangd")
-    vim.lsp.config["rust_analyzer"] = vim.tbl_deep_extend(
+
+    -- vim.lsp.config["rust_analyzer"] = vim.tbl_deep_extend(
+    --     "force",
+    --     vim.lsp.config["rust_analyzer"] or {},
+    --     {
+    --         on_attach = default_on_attach,
+    --         capabilities = capabilities,
+    --         -- settings = { ["rust-analyzer"] = {} },
+    --     }
+    -- )
+    -- vim.lsp.enable("rust_analyzer")
+
+    require("user.plugins.lsp.sumneko_lua").setup()
+    -- setup_server("json-lsp", capabilities)
+
+    vim.lsp.config["jsonls"] = vim.tbl_deep_extend(
         "force",
-        vim.lsp.config["rust_analyzer"] or {},
+        vim.lsp.config["jsonls"] or {},
         {
+            cmd = { "vscode-json-language-server", "--stdio" },
             on_attach = default_on_attach,
             capabilities = capabilities,
-            -- settings = { ["rust-analyzer"] = {} },
+            settings = {
+                json = {
+                    validate = { enable = true },
+                    schemas = {},
+                },
+            },
+            filetypes = { "json" },
         }
     )
-    vim.lsp.enable("rust_analyzer")
-    require("user.plugins.lsp.sumneko_lua").setup()
+    vim.lsp.enable("jsonls")
 
     -- local lspconfig = require('lspconfig')
     -- lspconfig.solargraph.setup({

@@ -203,7 +203,7 @@ vim.keymap.set('n', '<leader>aut', function()
 
     print("ut: " .. ut)
 
-    -- local linewise = ""
+    -- set default register to ut string, in line mode
     vim.fn.setreg('"', ut, "l")
     vim.fn.setreg('+', ut)
 
