@@ -46,6 +46,7 @@ local plugins = {
     require("user.plugins.harpoon"),
     require("user.plugins.illuminate"), -- automatically highlight other uses of word under cursor, :IlluminateToggle
     -- require("user.plugins.lightspeed"),
+    require("user.plugins.krust"),
     require("user.plugins.lsp"),
     require("user.plugins.luadev"),
     require("user.plugins.lualine"),

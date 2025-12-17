@@ -97,6 +97,10 @@ local function setup()
             , {})
         -- vim.api.nvim_set_keymap('n', '<leader>fz', '<cmd>Files<cr>', {})
         vim.keymap.set('n', '<leader>fz', '<cmd>Files<cr>', {})
+
+        vim.keymap.set('n', '<leader>fll', function() require("fzf-lua").files() end, {})
+        vim.keymap.set('n', '<leader>fl;', function() require("fzf-lua").oldfiles() end, {})
+        vim.keymap.set('n', '<leader>flb', function() require("fzf-lua").buffers() end, {})
         -- vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
     end
     vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})

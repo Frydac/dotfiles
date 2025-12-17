@@ -3,4 +3,9 @@
 //@theme "/home/emile/.local/share/rofi/themes/rounded-nord-dark.rasi"
 //@theme "/home/emile/.local/share/rofi/themes/rounded-nord-dark.rasi"
 //@theme "/home/emile/.local/share/rofi/themes/launchpad.rasi"
-@theme "/home/emile/.local/share/rofi/themes/rounded-nord-dark.rasi"
+//@theme "/home/emile/.local/share/rofi/themes/rounded-nord-dark.rasi"
+
+// @theme "/usr/share/rofi/themes/material.rasi"
+//@theme "/home/emile/.config/rofi/material-custom.rasi"
+
+@theme "/home/emile/.local/share/rofi/themes/spotlight-dark.rasi"

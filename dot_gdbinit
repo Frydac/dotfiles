@@ -1,0 +1,121 @@
+# -- gdbundle_BEGIN
+python
+import os,sys,subprocess
+# Execute a Python using the user's shell and pull out the sys.path (for site-packages)
+paths = subprocess.check_output('python -c "import os,sys;print(os.linesep.join(sys.path).strip())"',shell=True).decode("utf-8").split()
+# Extend GDB's Python search path
+sys.path.extend(paths)
+
+# Initialize gdbundle
+# import gdbundle
+# gdbundle.init()
+end
+# -- gdbundle_END
+
+
+
+# ~/.gdbinit - useful defaults for rr / reverse debugging (C/C++)
+
+# ----- UI / convenience -----
+set pagination off
+# don't pause output with --More--
+set confirm off
+# don't ask "Really?" for certain operations
+set print pretty on
+# nicer C++ container / type printing
+set print demangle on
+# show C++ symbol names demangled
+set print elements 200
+# max array/vector elements to print (tune as needed)
+set width 0
+# allow unlimited width for printed lines
+
+# ----- break/watch behaviour -----
+set breakpoint pending on
+# allow breakpoints on not-yet-loaded shared libs/symbols
+
+# ----- history -----
+set history save on
+set history filename ~/.gdb_history
+
+# ----- helpful layout for TUI (only if you run gdb -tui or in terminal with TUI) -----
+# To activate TUI manually: gdb -tui or inside gdb: layout src
+# Optional auto-layout when starting gdb interactively:
+define starttui
+  # try to set a useful layout (safe to call interactively)
+  layout src
+  shell echo "TUI layout: source/asm/regs (use Ctrl-x o to switch panes)"
+end
+
+# ----- short aliases for reverse commands (handy in CLI) -----
+# use: rs, rn, rc, rf, rbt
+define rs
+  reverse-step
+end
+
+define rn
+  reverse-next
+end
+
+define rc
+  reverse-continue
+end
+
+define rf
+  reverse-finish
+end
+
+define rbt
+  reverse-step-instruction
+end
+
+# ----- rapid reverse-watch helper -----
+# Usage: rwatch <expression>
+# This sets a watch on the expression and immediately runs reverse-continue.
+# In an rr replay session: call rwatch myVar
+define rwatch
+  # $arg0 is the first argument passed to the command
+  if $argc == 0
+    printf "Usage: rwatch <expr>\n"
+  else
+    watch $arg0
+    printf "watch %s\n", "$arg0"
+    reverse-continue
+  end
+end
+
+# ----- convenience command to find last write then bt -----
+# Usage: wherewrite <expression>
+# Sets a watch, reverse-continues to the previous writer, then prints backtrace + source.
+define wherewrite
+  if $argc == 0
+    printf "Usage: wherewrite <expr>\n"
+  else
+    watch $arg0
+    reverse-continue
+    printf "Stopped at last write of %s\n", "$arg0"
+    bt
+    info source
+    list
+  end
+end
+
+# ----- small safety / hints -----
+# If you're using rr, it's fine to leave signal handling alone (rr recorded them).
+# If GDB input is garbled on some terminals, uncomment:
+# set editing off
+
+
+
+# list or l
+#  * show code
+#  * lost of options
+#    * list . : show around current position
+# layout src
+#  * show source
+# layout asm/split/regs
+#  * show assembly/split code and assembly/registers
+# Ctrl-L refreshes the screen
+# tbreak -10
+#  * set a temporary breakpoint 10 lines above, breakpoint is removed when hit
+

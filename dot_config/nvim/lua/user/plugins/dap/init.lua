@@ -1,16 +1,24 @@
 local function setup_keymaps()
     vim.keymap.set('n', '<leader>dac', function() require "dap".continue() end)
+    vim.keymap.set('n', '<F5>', function() require "dap".continue() end)
     vim.keymap.set('n', '<leader>dal', function() require "dap".run_last() end)
     vim.keymap.set('n', '<leader>dan', function() require "dap".step_over() end)
+    vim.keymap.set('n', '<F10>', function() require "dap".step_over() end)
     vim.keymap.set('n', '<leader>das', function() require "dap".step_into() end)
+    vim.keymap.set('n', '<F11>', function() require "dap".step_into() end)
     vim.keymap.set('n', '<leader>dao', function() require "dap".step_out() end)
+    -- <s-F11> = <F23>
+    vim.keymap.set('n', '<F23>', function() require "dap".step_out() end)
     vim.keymap.set('n', '<leader>dag', function() require "dap".goto_() end)
     vim.keymap.set('n', '<leader>dab', function() require "dap".toggle_breakpoint() end)
     vim.keymap.set('n', '<leader>dat', function() require "dap".terminate(); require("dapui").close() end)
+    -- <s-F5> = <F17>
+    vim.keymap.set('n', '<F17>', function() require "dap".terminate(); require("dapui").close() end)
     vim.keymap.set('n', '<leader>dcc', function() require "dap".run_to_cursor() end)
+    vim.keymap.set('n', '<F6>', function() require "dap".run_to_cursor() end)
 
-    vim.cmd [[ augroup emile_dap | autocmd! | augroup end ]]
-    vim.cmd [[au emile_dap FileType dap-repl lua require('dap.ext.autocompl').attach()]]
+    -- vim.cmd [[ augroup emile_dap | autocmd! | augroup end ]]
+    -- vim.cmd [[au emile_dap FileType dap-repl lua require('dap.ext.autocompl').attach()]]
 
     vim.keymap.set('n', '<leader>dau', function() require("dapui").toggle() end)
 

@@ -688,7 +688,9 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
     -- TODO: check if they are runnning already before spawning them
 awful.spawn.once("workrave", awful.rules.rules)
 awful.spawn.once("nm-applet", awful.rules.rules)
+awful.spawn.once("blueman-applet", awful.rules.rules)
 awful.spawn.once("volctl", awful.rules.rules)
+awful.spawn.with_shell("pgrep -u $USER -x picom || picom")
 
     -- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this hame, that way we can open multiple
     -- kitties and have them in the correct tags
