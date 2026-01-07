@@ -1,4 +1,7 @@
 vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+vim.g.have_nerd_font = true
 
 -- support embedded lua and python
 vim.g.vimsyn_embed = 'lP'
@@ -57,7 +60,9 @@ vim.opt.wildignore = { '*/.ccls-cache/*', '*/tags' }
 
 -- TODO: should first experiment with these to see if I need them
 -- vim.opt.timeout = false
--- vim.opt.timeoutlen = 200
+vim.opt.timeoutlen = 300
+vim.opt.updatetime = 250
+
 -- vim.opt.viminfo= "!,'1000,<1000,s100,h"
 -- set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
 
@@ -98,5 +103,5 @@ vim.opt.colorcolumn = '+1'
 -- the top or something.
 -- vim.opt.laststatus = 3
 
--- vim.o.winborder = "rounded"
+vim.o.winborder = "rounded"
 

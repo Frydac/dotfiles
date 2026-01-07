@@ -6,7 +6,8 @@ vim.cmd [[ augroup cmds | autocmd! | augroup end ]]
 -- save on loose foxus TODO: this doesn't always work, e.g. when part of tmux
 -- pane, some autosave plugin might be better, though I've had issues with lsp
 -- going at it.
-vim.cmd [[ autocmd cmds FocusLost * silent! wa ]]
+-- vim.cmd [[ autocmd cmds FocusLost * silent! wa ]]
+vim.cmd [[ autocmd cmds FocusLost * if &modifiable | silent! write | endif ]]
 
 -- Preview window with line wrap
 vim.cmd [[ autocmd cmds WinEnter * if &previewwindow | setlocal wrap | endif ]]

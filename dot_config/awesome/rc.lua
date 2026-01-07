@@ -250,7 +250,54 @@ awful.screen.connect_for_each_screen(function(s)
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    -- local top_offset = 40
+    -- local side_margin = 20
+    -- s.mywibox = awful.wibar({
+    --     position = "top",
+    --     margins = {
+    --         top = 10,
+    --         left = 20,
+    --         right = 20,
+    --     },
+    --     screen = s,
+    --     -- height = 28,
+    --     -- x = s.geometry.x + side_margin,
+    --     -- y = s.geometry.y + top_offset,
+    --     -- width = s.geometry.width - side_margin * 2,
+    --     -- height = s.geometry.height - top_offset * 2
+    --     ontop = true,
+    --     shape = function(cr, w, h)
+    --         gears.shape.rounded_rect(cr, w, h, 8)
+    --     end,
+    -- })
+
+    local top_offset  = 10
+    local side_margin = 20
+    local bar_height  = 28
+
+    s.mywibox = awful.wibar({
+        screen = s,
+        type = "normal",
+        height = bar_height,
+        width  = s.geometry.width - side_margin * 2,
+        x      = s.geometry.x + side_margin,
+        y      = s.geometry.y + top_offset,
+        -- ontop  = true,
+        bg     = "#1e1e2e",
+        shape  = function(cr, w, h)
+            gears.shape.rounded_rect(cr, w, h, 8)
+        end,
+    })
+
+    s.mywibox:geometry({
+        x = s.geometry.x + side_margin,
+        y = s.geometry.y + top_offset,
+    })
+
+    -- reserve space so windows don't overlap
+    s.mywibox:struts({
+        top = bar_height + top_offset
+    })
 
     -- require custom widgets
     -- local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
@@ -263,6 +310,9 @@ awful.screen.connect_for_each_screen(function(s)
     -- my_systray = wibox.widget.systray()
     -- my_systray:set_base_size(32) -- or 20/24 depending on your bar height
 
+    -- local tray = wibox.widget.systray()
+    -- tray:set_spacing(8)
+    -- local my_systray = wibox.container.margin(tray, 4, 4, 2, 2)
     local my_systray = wibox.widget {
         {
             widget = wibox.widget.systray,
@@ -284,6 +334,7 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
+            -- spacing = 10,
             mykeyboardlayout,
             -- wibox.widget.systray(),
             my_systray,
@@ -297,6 +348,8 @@ awful.screen.connect_for_each_screen(function(s)
             logout_menu_widget(),
             s.mylayoutbox,
         },
+        margins = 8,
+        widget = wibox.container.margin,
     }
 end)
 -- }}}
@@ -689,8 +742,9 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 awful.spawn.once("workrave", awful.rules.rules)
 awful.spawn.once("nm-applet", awful.rules.rules)
 awful.spawn.once("blueman-applet", awful.rules.rules)
-awful.spawn.once("volctl", awful.rules.rules)
+awful.spawn.with_shell("pgrep -u $USER -x volctl || volctl")
 awful.spawn.with_shell("pgrep -u $USER -x picom || picom")
+awful.spawn.with_shell("pgrep -u $USER -x xsettingsd || xsettingsd")
 
     -- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this hame, that way we can open multiple
     -- kitties and have them in the correct tags

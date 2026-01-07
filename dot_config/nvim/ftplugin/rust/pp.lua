@@ -6,3 +6,6 @@ vim.keymap.set('n', '<leader>pe', [["zyiwoprintln!("<c-r>z: {:?}", <c-r>z);<esc>
 vim.keymap.set('v', '<leader>pe', [["zyoprintln!("<c-r>z: {:?}", <c-r>z);<esc>]], keymap_opts)
 vim.keymap.set('n', '<leader>pd', [["zyiwodbg!(<c-r>z);<esc>]], keymap_opts)
 vim.keymap.set('v', '<leader>pd', [["zyodbg!(<c-r>z);<esc>]], keymap_opts)
+
+vim.keymap.set('n', '<leader>pt', [["zyiwotrace!("<c-r>z: {}", <c-r>z);<esc>]], keymap_opts)
+vim.keymap.set('v', '<leader>pt', [["zyotrace!("<c-r>z: {}", <c-r>z);<esc>]], keymap_opts)

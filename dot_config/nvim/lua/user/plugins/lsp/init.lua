@@ -13,6 +13,7 @@ local function setup_mason_tool_installer()
             -- 'java-language-server', -- error installing maven build?
             'jdtls',
             'stylua',
+            'lua_ls',
             'shellcheck',
             -- 'editorconfig-checker',
             -- 'luacheck', -- requires luarocks
@@ -120,6 +121,23 @@ local function mason_lspconfig_setup_handlers()
         }
     )
     vim.lsp.enable("clangd")
+    vim.lsp.enable("lua_ls")
+    -- Taken care of by lazydev plugin?
+    -- vim.lsp.config["lua_ls"] = vim.tbl_deep_extend(
+    --     "force",
+    --     vim.lsp.config["lua_ls"] or {},
+    --     {
+    --         on_attach = default_on_attach,
+    --         capabilities = capabilities,
+    --         settings = {
+    --             Lua = {
+    --                 diagnostics = {
+    --                     globals = { "vim", "require" },
+    --                 },
+    --             },
+    --         },
+    --     }
+    -- )
 
     -- vim.lsp.config["rust_analyzer"] = vim.tbl_deep_extend(
     --     "force",
@@ -238,7 +256,7 @@ local function mason_lspconfig_setup_handlers()
 
     -- After setting up mason-lspconfig you may set up servers via lspconfig
     -- require("lspconfig").sumneko_lua.setup {}
-    require("neodev").setup()
+    -- require("neodev").setup()
 
     -- lspconfig.bashls.setup { on_attach = default_on_attach }
     -- lspconfig.solargraph.setup({
@@ -273,7 +291,18 @@ local lsp_config = {
                 -- })
             end,
         },
-        { "folke/neodev.nvim" },
+        {
+            -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
+            -- used for completion, annotations and signatures of Neovim apis
+            'folke/lazydev.nvim',
+            ft = 'lua',
+            opts = {
+                library = {
+                    -- Load luvit types when the `vim.uv` word is found
+                    { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+                },
+            },
+        },
         { "lvimuser/lsp-inlayhints.nvim" },
         -- {
         --     "DNLHC/glance.nvim",

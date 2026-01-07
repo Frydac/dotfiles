@@ -69,6 +69,8 @@ alias gsl='echo "git stash list"; git stash list'
 alias gsa='echo "git stash apply"; git stash apply'
 alias gsp='echo "git stash pop"; git stash pop'
 
+alias rqs='echo "rake qc:single"; rake qc:single'
+
 alias fix_mic="amixer -c 2 set 'Input Source' 'Line' && amixer -c 2 set 'Input Source' 'Rear Mic'"
 
 # from https://wiki.archlinux.org/title/Fzf#Pacman

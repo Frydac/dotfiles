@@ -31,16 +31,20 @@ local function format_ccls_diagnostic_result(diagnostic)
 end
 
 vim.diagnostic.config({
-    virtual_text = {
-        source = true,
-        format = function(diagnostic)
-            if diagnostic.user_data and diagnostic.user_data.code then
-                return string.format('%s %s', diagnostic.user_data.code, diagnostic.message)
-            else
-                return diagnostic.message
-            end
-        end,
-    },
+    -- virtual_text = {
+    --     source = true,
+    --     format = function(diagnostic)
+    --         if diagnostic.user_data and diagnostic.user_data.code then
+    --             return string.format('%s %s', diagnostic.user_data.code, diagnostic.message)
+    --         else
+    --             return diagnostic.message
+    --         end
+    --     end,
+    -- },
+    -- virtual_text = false,
+    virtual_text = false,
+    -- virtual_lines = true,
+    virtual_lines = {current_line = true},
     signs = false,
     float = {
         header = 'Diagnostics',

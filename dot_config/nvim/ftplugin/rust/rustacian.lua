@@ -1,6 +1,20 @@
 local keymap_opts = { buffer = true, silent = true, noremap = true }
+vim.keymap.set('n', '<leader>rr', function()
+    vim.cmd.wall()
+    require("neotest").output_panel.clear()
+    require("neotest").output_panel.open()
+    vim.cmd.Neotest('run')
+end, keymap_opts, { desc = "Save all, clear output panel and run test under cursor" })
+vim.keymap.set('n', '<leader>rl', function()
+    vim.cmd.wall()
+    require("neotest").output_panel.clear()
+    require("neotest").output_panel.open()
+    vim.cmd.Neotest('run', 'last')
+end, keymap_opts, { desc = "Save all, clear output panel and run last test" })
 
-vim.keymap.set('n', '<leader><leader>r', function() vim.cmd.RustLsp('run') end, keymap_opts)
 vim.keymap.set('n', '<leader>rt', function() vim.cmd.RustLsp('testables') end, keymap_opts)
-vim.keymap.set('n', '<leader>rr', function() vim.cmd.RustLsp('runnables') end, keymap_opts)
+vim.keymap.set('n', '<leader>ru', function() vim.cmd.RustLsp('runnables') end, keymap_opts)
+
+-- vim.keymap.set('n', '<leader>rc', require("neotest").output_panel.clear, keymap_opts)
+-- vim.keymap.set('n', '')
 -- vim.keymap.set('n', '<leader>rr', function() vim.cmd.RustLsp('run') end, keymap_opts)

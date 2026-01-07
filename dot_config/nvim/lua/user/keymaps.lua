@@ -245,6 +245,8 @@ vim.keymap.set('n', '<leader>aaa', function() testing() end)
 -- save all and reload -> e.g. force lsp update
 vim.keymap.set('n', '<leader>ww', '<cmd>wa<cr><cmd>e<cr>')
 
+vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ocation list' })
+
 return M
 
 -- use {
