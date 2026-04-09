@@ -50,6 +50,7 @@ files_to_source=(
    auro_compiler
    plugins_antidote
    dirs
+   path
    # Add new files here
    # extra_config
 )
@@ -89,3 +90,13 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
+
+# Helper function to source, only if file exists and is readable
+source_if_exists() {
+  local file
+  for file in "$@"; do
+    [[ -r "$file" ]] && source "$file"
+  done
+}
+
+source_if_exists "$HOME/repos/root-all/propr/CoreDesign/build/server/names.sh"

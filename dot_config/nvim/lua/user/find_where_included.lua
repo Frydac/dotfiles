@@ -2,6 +2,22 @@
 -- depends on filtype, not everyting supported of course
 
 local M = {}
+M.opts = {
+    rg_unrestricted = false, -- when true, adds `-u` to `:Rg`
+}
+
+function M.setup(opts)
+    M.opts = vim.tbl_extend('force', M.opts, opts or {})
+end
+
+function M.set_rg_unrestricted(enabled)
+    M.opts.rg_unrestricted = not not enabled
+end
+
+function M.toggle_rg_unrestricted()
+    M.opts.rg_unrestricted = not M.opts.rg_unrestricted
+    print("find_where_included: rg_unrestricted=" .. tostring(M.opts.rg_unrestricted))
+end
 
 local remove_extension = function (filename)
     if filename then
@@ -115,7 +131,8 @@ function M.find_where_included(filename)
     local create_query_func = create_ripgrep_query[vim_filetype]
     if (create_query_func) then
         local rg_query = create_query_func(include_path, full_include_path_known)
-        local cmd = string.format("Rg -u %s", rg_query)
+        local rg_opts = M.opts.rg_unrestricted and "-u " or ""
+        local cmd = string.format("Rg %s%s", rg_opts, rg_query)
         print("Search command: "..cmd)
         vim.cmd(cmd)
     end
@@ -126,7 +143,14 @@ function M.find_where_included_current_buf()
     return M.find_where_included(current_buf_fn)
 end
 
-vim.keymap.set('n', 'ydf', function() M.find_where_included_current_buf() end)
+vim.keymap.set('n', 'ydf', function() M.find_where_included_current_buf() end, { desc = 'Find where included: use ripgrep plugin to search where the current buffer is included' })
+vim.api.nvim_create_user_command(
+    'FindWhereIncludedToggle',
+    function()
+        M.toggle_rg_unrestricted()
+    end,
+    { desc = 'Toggle -u for find_where_included ripgrep search' }
+)
 
 return M
 

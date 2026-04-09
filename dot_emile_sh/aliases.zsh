@@ -27,6 +27,8 @@ alias r='echo "ranger"; ranger'
 alias nv='nvim'
 alias sshk='kitty +kitten ssh'
 
+alias minicom_log='echo "sudo minicom -D /dev/ttyUSB3 --capturefile=/tmp/minicom_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended"; sudo minicom -D /dev/ttyUSB3 --capturefile=/tmp/minicom_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
+
 alias r='echo "ranger"; ranger'
 #alias e='gvim --remote-tab-silent'
 #g --graph --decorate --pretty=oneline --abbrev-commit()
@@ -274,7 +276,7 @@ function use_ccache {
     unset CCACHE_PREFIX
 }
 
-use_ccache
+# use_ccache
 
 function use_no_ccache {
     # TODO: remove /usr/lib/ccache/bin/ from $PATH if it is in it
@@ -331,4 +333,9 @@ alias tt='teensy_typing'
 
 
 alias logout=awesome-client 'awesome.quit()'
+
+
+if [ -f /home/emile/repos/root-all/propr/CoreDesign/build/server/names.sh ]; then
+    . /home/emile/repos/root-all/propr/CoreDesign/build/server/names.sh
+fi
 

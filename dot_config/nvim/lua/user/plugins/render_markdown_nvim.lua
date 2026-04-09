@@ -14,7 +14,24 @@ return {
     ---@type render.md.UserConfig
     opts = {
         code = {
-            highlight_border = false,
-        }
+            -- position = 'right',
+            style = 'langauge',
+            -- width = 'block',
+            left_pad = 2,
+            right_pad = 4,
+            -- border = 'thick',
+            -- highlight_border = false,
+        },
+        heading = {
+            border = true,
+            -- border_prefix = true,
+            atx = true,
+            setext = true,
+            icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
+            -- icons = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰎱 ", "󰎳 " },
+
+        },
+        completions = { lsp = { enabled = true } },
+        ft = { "markdown", "codecompanion" }
     },
 }

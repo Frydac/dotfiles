@@ -1,268 +1,183 @@
-local function setup_mason_tool_installer()
-    require('mason-tool-installer').setup {
-
-        -- a list of all tools you want to ensure are installed upon
-        -- start; they should be the names Mason uses for each tool
-        --
-        -- List of available packages
-        -- https://github.com/williamboman/mason.nvim/blob/main/PACKAGES.md
-        ensure_installed = {
-            'bash-language-server',
-            'lua-language-server',
-            'vim-language-server',
-            -- 'java-language-server', -- error installing maven build?
-            'jdtls',
-            'stylua',
-            'lua_ls',
-            'shellcheck',
-            -- 'editorconfig-checker',
-            -- 'luacheck', -- requires luarocks
-            -- 'misspell', -- depends on go
-            'shellcheck',
-            'shfmt',
-            'vint',
-            'solargraph',
-            'clangd',
-            -- 'clang-format',
-            'json-lsp',
-            -- 'rust-analyzer'
-        },
-
-        -- if set to true this will check each tool for updates. If updates
-        -- are available the tool will be updated. This setting does not
-        -- affect :MasonToolsUpdate or :MasonToolsInstall.
-        -- Default: false
-        auto_update = false,
-
-        -- automatically install / update on startup. If set to false nothing
-        -- will happen on startup. You can use :MasonToolsInstall or
-        -- :MasonToolsUpdate to install tools and check for updates.
-        -- Default: true
-        run_on_start = true,
-
-        -- set a delay (in ms) before the installation starts. This is only
-        -- effective if run_on_start is set to true.
-        -- e.g.: 5000 = 5 second delay, 10000 = 10 second delay, etc...
-        -- Default: 0
-        start_delay = 3000, -- 3 second delay
-    }
-end
-
--- local myhostname = "emile-linux-home"
 local myhostname = "wuuut"
 
--- make buffer keymaps and stuff when lsp server attaches to buffer
-local default_on_attach = require('user.plugins.lsp.on_attach').on_attach
-
-local function setup_server(server_name, capabilities)
-    vim.lsp.config[server_name] = vim.tbl_deep_extend(
-        "force",
-        vim.lsp.config[server_name] or {},
-        {
-            on_attach = default_on_attach,
-            capabilities = capabilities,
-        }
-    )
-    vim.lsp.enable(server_name)
+local function setup_mason_tool_installer()
+    require("mason-tool-installer").setup({
+        ensure_installed = {
+            "bash-language-server",
+            "lua-language-server",
+            "vim-language-server",
+            "jdtls",
+            "stylua",
+            "shellcheck",
+            "shfmt",
+            "vint",
+            "solargraph",
+            "clangd",
+            "json-lsp",
+            "marksman",
+        },
+        auto_update = false,
+        run_on_start = true,
+        start_delay = 3000,
+    })
 end
 
-local function mason_lspconfig_setup_handlers()
+local function patch_lsp_dynamic_registration()
+    local handlers = vim.lsp.handlers
+    if not handlers or handlers._java_language_server_register_patch then
+        return
+    end
 
+    local original = handlers["client/registerCapability"]
+    handlers["client/registerCapability"] = function(err, result, ctx, config)
+        if result and result.registrations then
+            for _, registration in ipairs(result.registrations) do
+                if registration.registerOptions == vim.NIL then
+                    registration.registerOptions = {}
+                end
+            end
+        end
+
+        local ok, response = pcall(original, err, result, ctx, config)
+        if ok then
+            return response
+        end
+
+        if tostring(response):find("ipairs", 1, true) then
+            vim.schedule(function()
+                vim.notify(
+                    "Ignored invalid dynamic LSP registration from java_language_server",
+                    vim.log.levels.DEBUG
+                )
+            end)
+            return nil
+        end
+
+        error(response)
+    end
+
+    handlers._java_language_server_register_patch = true
+end
+
+local function make_capabilities()
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    -- L("capabilities: ", capabilities)
-    if IsAvailable('cmp_nvim_lsp') then
-        -- The nvim-cmp supports extra LSP's capabilities so You should advertise it to LSP servers..
-        local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-        capabilities = vim.tbl_extend("force", capabilities, cmp_capabilities) -- merge capabilities
-    end
-    if IsAvailable('blink.cmp', false) then
-        capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
+
+    if IsAvailable("cmp_nvim_lsp") then
+        capabilities = vim.tbl_extend(
+            "force",
+            capabilities,
+            require("cmp_nvim_lsp").default_capabilities(capabilities)
+        )
     end
 
-    -- local lspconfig = vim.lsp.config
+    if IsAvailable("blink.cmp", false) then
+        capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
+    end
 
-    require("mason-lspconfig").setup({
-        automatic_enable = false,
-        --     exclude = {
-        -- --         "clangd",
-        -- --         "ccls",
-        -- --         "lua_ls",
-        --         "solargraph",
-        --     }
-        -- }
+    return capabilities
+end
+
+local function configure_server(name, config)
+    vim.lsp.config(name, config)
+end
+
+local function enable_servers(server_names)
+    for _, server_name in ipairs(server_names) do
+        vim.lsp.enable(server_name)
+    end
+end
+
+local function configure_servers()
+    configure_server("solargraph", {
+        root_markers = { ".solargraph.yml" },
     })
 
-    ------------------------------------------------------------------------------
-    --- new lsp.config api, but doesn't seem an improvment, just more code/work
-    --- below is not starting the lsp servers, and I don't see the lsp laoding spinner anymore
-    ---
-    vim.lsp.config["solargraph"] = vim.tbl_deep_extend(
-        "force",
-        vim.lsp.config["solargraph"] or {},
-        {
-            root_markers = { ".solargraph.yml" }, -- override / add
-            -- root_dir = function(fname)
-            --     return vim.fs.find({ ".solargraph.yml", ".git" }, { upward = true, path = fname })[1]
-            --     or vim.fs.dirname(fname)
-            -- end,
-            on_attach = default_on_attach,
-        }
-    )
-    vim.lsp.enable("solargraph")
-    vim.lsp.config["clangd"] = vim.tbl_deep_extend(
-        "force",
-        vim.lsp.config["clangd"] or {},
-        {
-            on_attach = default_on_attach,
-            capabilities = capabilities,
-            on_init = function(client, _)
-                client.server_capabilities.semanticTokensProvider = nil
-            end,
-        }
-    )
-    vim.lsp.enable("clangd")
-    vim.lsp.enable("lua_ls")
-    -- Taken care of by lazydev plugin?
-    -- vim.lsp.config["lua_ls"] = vim.tbl_deep_extend(
-    --     "force",
-    --     vim.lsp.config["lua_ls"] or {},
-    --     {
-    --         on_attach = default_on_attach,
-    --         capabilities = capabilities,
-    --         settings = {
-    --             Lua = {
-    --                 diagnostics = {
-    --                     globals = { "vim", "require" },
-    --                 },
-    --             },
-    --         },
-    --     }
-    -- )
+    configure_server("clangd", {
+        cmd = {
+            "clangd",
+            "--background-index",
+            "--clang-tidy",
+            "--log=verbose",
+            "--header-insertion=never",
+            "--query-driver=/home/emile/.config/auro/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-elf/bin/aarch64-elf-gcc",
+        },
+        initialization_options = {
+            fallbackFlags = { "-I/home/emile/repos/root-all/sdk/nxp.i3d/integration/cpp11/public" },
+        },
+        on_init = function(client, _)
+            client.server_capabilities.semanticTokensProvider = nil
+        end,
+    })
 
-    -- vim.lsp.config["rust_analyzer"] = vim.tbl_deep_extend(
-    --     "force",
-    --     vim.lsp.config["rust_analyzer"] or {},
-    --     {
-    --         on_attach = default_on_attach,
-    --         capabilities = capabilities,
-    --         -- settings = { ["rust-analyzer"] = {} },
-    --     }
-    -- )
-    -- vim.lsp.enable("rust_analyzer")
+    configure_server("java_language_server", {
+        cmd = { "/home/emile/.local/share/java-language-server-patched/lang_server_linux_system.sh" },
+        root_markers = {
+            "gradlew",
+            "settings.gradle",
+            "settings.gradle.kts",
+            "build.gradle",
+            "build.gradle.kts",
+            "pom.xml",
+            ".git",
+        },
+    })
 
     require("user.plugins.lsp.sumneko_lua").setup()
-    -- setup_server("json-lsp", capabilities)
 
-    vim.lsp.config["jsonls"] = vim.tbl_deep_extend(
-        "force",
-        vim.lsp.config["jsonls"] or {},
-        {
-            cmd = { "vscode-json-language-server", "--stdio" },
-            on_attach = default_on_attach,
-            capabilities = capabilities,
-            settings = {
-                json = {
-                    validate = { enable = true },
-                    schemas = {},
-                },
+    configure_server("jsonls", {
+        cmd = { "vscode-json-language-server", "--stdio" },
+        filetypes = { "json" },
+        settings = {
+            json = {
+                validate = { enable = true },
+                schemas = {},
             },
-            filetypes = { "json" },
-        }
-    )
-    vim.lsp.enable("jsonls")
+        },
+    })
 
-    -- local lspconfig = require('lspconfig')
-    -- lspconfig.solargraph.setup({
-    --     root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
-    --     on_attach = default_on_attach,
-    -- })
-    -- lspconfig.clangd.setup({
-    --     on_attach = default_on_attach,
-    --     capabilities = capabilities,
-    --     on_init = function(client, _)
-    --         client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
-    --     end,
-    -- })
-    -- require("user.plugins.lsp.sumneko_lua").setup_old()
+    configure_server("cmake", {
+        cmd = { "cmake-language-server" },
+        filetypes = { "cmake" },
+        root_markers = {
+            "CMakeLists.txt",
+            ".git",
+            "build",
+        },
+        init_options = {
+            buildDirectory = "build",
+        },
+    })
+end
 
-    -- lspconfig.rust_analyzer.setup {
-    --     on_attach = default_on_attach,
-    --     capabilities = capabilities,
-    -- }
+local function setup_lsp()
+    local capabilities = make_capabilities()
 
-    -- vim.lsp.enable('rust_analyzer')
-    -- vim.lsp.config('rust_analyzer', {
-    --     on_attach = default_on_attach,
-    --     capabilities = capabilities,
-    --     -- Server-specific settings. See `:help lsp-quickstart`
-    --     settings = {
-    --         ['rust-analyzer'] = {
-    --             on_attach = default_on_attach,
-    --             capabilities = capabilities,
-    --         },
-    --     },
-    -- })
+    patch_lsp_dynamic_registration()
+    require("user.plugins.lsp.on_attach").setup()
 
-    -- only works for servers installed using mason (mason-tool-installer)
-    -- require("mason-lspconfig").setup_handlers({
-    --     -- for servers not listed below
-    --     function(server_name)
-    --         -- if vim.fn.hostname() == myhostname then
-    --         if server_name == 'clangd' then return end
-    --         -- end
+    vim.lsp.config("*", {
+        capabilities = capabilities,
+    })
 
-    --         lspconfig[server_name].setup({
-    --             on_attach = default_on_attach,
-    --             capabilities = capabilities,
-    --         })
-    --     end,
+    require("mason-lspconfig").setup({
+        -- Keep custom-managed servers on the explicit vim.lsp.enable path and
+        -- let mason-lspconfig auto-enable only lightweight builtin configs.
+        automatic_enable = { "marksman" },
+    })
 
-    --     -- specific server configurations
-    --     -- NOTE: use the lspconfig name, not the mason name
-    --     ['solargraph'] = function()
-    --         lspconfig.solargraph.setup({
-    --             root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd(),
-    --             on_attach = default_on_attach,
-    --         })
-    --     end,
+    configure_servers()
+    enable_servers({
+        "solargraph",
+        "clangd",
+        "lua_ls",
+        "java_language_server",
+        "jsonls",
+        "cmake",
+    })
 
-    --     ['lua_ls'] = function()
-    --         require("user.plugins.lsp.sumneko_lua").setup()
-    --     end,
-
-    --     ['jdtls'] = function()
-    --         lspconfig.jdtls.setup({
-    --             root_dir = lspconfig.util.root_pattern(".git") or lspconfig.util.path.dirname,
-    --             on_attach = default_on_attach,
-    --         })
-    --     end,
-
-    --     ['clangd'] = function()
-    --         lspconfig.clangd.setup({
-    --             on_attach = default_on_attach,
-    --             capabilities = capabilities,
-    --             on_init = function(client, _)
-    --                 client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
-    --             end,
-    --         })
-    --     end
-    -- })
-
-    -- this is not part of mason
-    -- TODO: use capabilities of both clangd and ccls
     if vim.fn.hostname() == myhostname then
         require("user.plugins.lsp.ccls").setup()
     end
-
-    -- After setting up mason-lspconfig you may set up servers via lspconfig
-    -- require("lspconfig").sumneko_lua.setup {}
-    -- require("neodev").setup()
-
-    -- lspconfig.bashls.setup { on_attach = default_on_attach }
-    -- lspconfig.solargraph.setup({
-    --     root_dir = lspconfig.util.root_pattern(".solargraph.yml") or vim.fn.getcwd,
-    --     on_attach = default_on_attach,
-    -- })
 end
 
 local lsp_config = {
@@ -270,14 +185,11 @@ local lsp_config = {
     dependencies = {
         "williamboman/mason.nvim",
         "williamboman/mason-lspconfig.nvim",
-        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        "WhoIsSethDaniel/mason-tool-installer.nvim",
         {
-            -- NOTE: noice is doing this now
-            -- lsp progress gui, fidget spinner
             "j-hui/fidget.nvim",
-            tag = 'v1.0.0',
-            opts = {}
-            -- enabled = true
+            tag = "v1.0.0",
+            opts = {},
         },
         { "m-pilia/vim-ccls" },
         {
@@ -285,86 +197,36 @@ local lsp_config = {
             enabled = false,
             branch = "main",
             config = function()
-                require('lspsaga').setup({})
-                -- saga.init_lsp_saga({
-                --     -- your configuration
-                -- })
+                require("lspsaga").setup({})
             end,
         },
-        {
-            -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
-            -- used for completion, annotations and signatures of Neovim apis
-            'folke/lazydev.nvim',
-            ft = 'lua',
-            opts = {
-                library = {
-                    -- Load luvit types when the `vim.uv` word is found
-                    { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-                },
-            },
-        },
+        require("user.plugins.lsp.lazydev"),
         { "lvimuser/lsp-inlayhints.nvim" },
-        -- {
-        --     "DNLHC/glance.nvim",
-        --     config = function()
-        --         require('glance').setup({
-
-        --         })
-        --     end
-        -- },
         {
             "SmiteshP/nvim-navbuddy",
-            -- config = function ()
-            --     local navbuddy = require("nvim-navbuddy")
-            --     -- navbuddy.setup({
-            --     --     window = {
-            --     --         size = "90%"
-            --     --     }
-            --     -- })
-            -- end,
             dependencies = {
                 "SmiteshP/nvim-navic",
-                "MunifTanjim/nui.nvim"
+                "MunifTanjim/nui.nvim",
             },
             opts = {
                 window = { size = "90%" },
-                lsp = { auto_attach = true }
-            }
+                lsp = { auto_attach = true },
+            },
         },
         {
             "smjonas/inc-rename.nvim",
             config = function()
                 require("inc_rename").setup({})
             end,
-        }
-
-        -- TODO: integrate
-        -- {
-        --     "SmiteshP/nvim-navic",
-        -- }
+        },
     },
     config = function()
-        -- before manson-lspconfig
         require("mason").setup()
-
-        -- ensure installed
         setup_mason_tool_installer()
-
-        -- require("mason-lspconfig").setup({
-        -- })
-
-        -- enable/configure lsp servers via lspconfig
-        mason_lspconfig_setup_handlers()
-    end
+        setup_lsp()
+    end,
 }
 
 return {
-    -- {
-    --     'mfussenegger/nvim-jdtls',
-    --     config = function()
-    --         require('user.plugins.lsp.jdtls')
-    --     end
-    -- },
     lsp_config,
-    -- require('user.plugins.lsp.clangd')
 }

@@ -70,9 +70,12 @@ vim.diagnostic.config({
 })
 
 -- Change border of documentation hover window, See https://github.com/neovim/neovim/pull/13998.
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-    border = "rounded",
-})
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+    config = vim.tbl_deep_extend("force", config or {}, {
+        border = "rounded",
+    })
+    return vim.lsp.handlers.hover(err, result, ctx, config)
+end
 
 
 local ccls_test = {
@@ -155,4 +158,3 @@ local ccls_test = {
 }
 
 -- format_ccls_diagnostic_result(ccls_test)
-

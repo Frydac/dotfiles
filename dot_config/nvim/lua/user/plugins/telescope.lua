@@ -18,7 +18,18 @@ local function setup()
             --     shorten = true,
             --     truncate = true
             -- }
-        }
+        },
+        -- pickers = {
+        --     git_bcommits = {
+        --         git_command = {
+        --             "git",
+        --             "log",
+        --             "--pretty=format:%C(yellow)%h %Cgreen%ad %Creset%s",
+        --             "--date=short",
+        --             "--",
+        --         },
+        --     },
+        -- },
     })
 
     -- if IsAvailable('telescope-fzf-native') then
@@ -104,7 +115,8 @@ local function setup()
         -- vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
     end
     vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>', {})
+    vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>',
+        {})
 
     -- find nvim config files (standard location)
     -- vim.api.nvim_set_keymap('n', '<leader>tv',

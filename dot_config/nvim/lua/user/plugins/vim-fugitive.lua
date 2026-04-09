@@ -1,4 +1,9 @@
-return {
+
+local gv = {
+    'junegunn/gv.vim'
+}
+
+local fugitive = {
     'tpope/vim-fugitive',
     config = function()
         -- TODO: use wich-key?
@@ -24,4 +29,9 @@ return {
             nnoremap <leader>gpl  :Git pull --ff-only<CR>
             ]]
     end
+}
+
+return {
+    gv,
+    fugitive
 }

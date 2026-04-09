@@ -131,6 +131,49 @@ Snips.init.qc_sn = function()
     return sn(1, nodes)
 end
 
+Snips.init.story_bb8_sn = function()
+    local nodes = fmt([[
+        story = Class.new do
+            def initialize
+                @mode = :auro_mss_log_in_release
+                # @mode = :release
+                # @mode = :debug
+                device = nil
+                @bb8 = Bb8::Instance.new(mode: @mode, device: device, color: true, verbose: 0)
+
+                @layout = 7.1
+                @block_size = 1024
+                @sample_rate = 48_000 * 1
+                @duration = 1
+                @block_count = @duration * @sample_rate / @block_size
+            end
+
+            def output_dir(*path, file:, clear: false)
+                Build.generated_dir("story/#{{Build.script_name}}", *path, file:, clear: clear)
+            end
+
+            def run
+                @bb8.run_script(block_size: @block_size, sample_rate: @sample_rate, block_count: @block_count) do |script|
+                    script.add(:signal, :sine).with(layout: @layout, amplitude: 0.30)
+                    {}
+                end
+            end
+
+        end
+
+
+        namespace :story do
+            task :test do
+                story.new.run
+            end
+        end
+    ]],{
+        i(1)
+    })
+
+    return sn(1, nodes)
+end
+
 Snips.init.story_sn = function()
     local nodes = fmt([[
         namespace :story do
@@ -180,6 +223,7 @@ end
 -- print("adding ruby stuff")
 ls.add_snippets("ruby", {
     s("init", Snips.init_sn()),
+    s("init_bb8", Snips.init.story_bb8_sn()),
 })
 
 return M

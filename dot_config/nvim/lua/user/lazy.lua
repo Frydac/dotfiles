@@ -20,8 +20,8 @@ local plugins = {
     -- require("user.plugins.hop"),
 
     require("user.plugins.ai_gpt"),
-    require("user.plugins.avante"),  -- ai plugin
-    require("user.plugins.agentic"), -- ai plugin
+    require("user.plugins.avante"), -- ai plugin
+    -- require("user.plugins.agentic"), -- ai plugin
     require("user.plugins.align"),
     -- require("user.plugins.autopairs"),
     -- require("user.plugins.blink_cmp"),
@@ -30,7 +30,7 @@ local plugins = {
     -- require("user.plugins.codeium"),
     require("user.plugins.supermaven"),
     -- require("user.plugins.codecompanion"),
-    require("user.plugins.csvview"), -- markdown todo stuff
+    -- require("user.plugins.csvview"), -- markdown todo stuff
     require("user.plugins.checkmate"), -- markdown todo stuff
     require("user.plugins.color_syntax"),
     -- require("user.plugins.mini.comment"),
@@ -62,13 +62,14 @@ local plugins = {
     require("user.plugins.mine"),
     require("user.plugins.neotree"),
     require("user.plugins.neogit"),
-    require("user.plugins.neotest"),
+    -- require("user.plugins.neotest"),
     -- require("user.plugins.nightfox"),
     -- require("user.plugins.noice"),
     require("user.plugins.colorschemes"),
     require("user.plugins.mini.files"),
     -- require("user.plugins.mini.surround"),
     require("user.plugins.oil"),
+    -- require("user.plugins.opencode"),
     require("user.plugins.persistence"),
     require("user.plugins.replacer"),
     require("user.plugins.render_markdown_nvim"),
@@ -82,8 +83,11 @@ local plugins = {
     require("user.plugins.troublesum"), -- show diagnostics in top right corner
     require("user.plugins.vim-fugitive"),
     require("user.plugins.yanky"),
+
     require("user.plugins.hightlight_word_under_cursor"),
-    require("user.plugins.debugprint"),
+
+    -- require("user.plugins.debugprint"),
+
     require("user.plugins.gitlinker"),      -- get link to online repository, usage: `<leader>gy` on a selection
     require("user.plugins.hlsens"),         -- highlight search items and count
     require("user.plugins.indent-blankline"),
@@ -114,7 +118,44 @@ local plugins = {
     "kazhala/close-buffers.nvim",
     "AndrewRadev/linediff.vim",
     { "CRAG666/code_runner.nvim",  config = true },
-    { 'akinsho/git-conflict.nvim', version = "*", config = true }
+    { 'akinsho/git-conflict.nvim', version = "*",       config = true },
+    { "catppuccin/nvim",           name = "catppuccin", priority = 1000 },
+    "d00h/nvim-rusticated",
+    "ellisonleao/gruvbox.nvim",
+    'Th3Whit3Wolf/one-nvim',
+    -- {
+    --     "folke/tokyonight.nvim",
+    --     lazy = false,
+    --     priority = 1000,
+    --     opts = {},
+    --     config = function()
+    --         require("tokyonight").setup({
+    --             style = "day",
+    --             light_style = "day",
+    --             -- Increase contrast on UI elements
+    --             styles = {
+    --                 comments = "italic",
+    --                 keywords = "bold",
+    --                 functions = "NONE",
+    --                 variables = "NONE",
+    --             },
+    --             colors = {
+    --                 -- slightly darker background than default day
+    --                 daybg = "#ECEFF4",
+    --             },
+    --             on_highlights = function(hl, c)
+    --                 -- stronger cursorline contrast
+    --                 hl.CursorLine = { bg = "#D8DEE9" }
+    --                 hl.Cursor = { fg = "#2E3440", bg = "#81A1C1" }
+    --                 -- darker normal text
+    --                 hl.Normal = { fg = "#2E3440", bg = c.daybg }
+    --             end,
+    --         })
+    --         vim.cmd("colorscheme tokyonight")
+    --     end
+    -- },
+
+    "rebelot/kanagawa.nvim"
 
     -- 'AndrewRadev/splitjoin.vim',
     -- use 'tpope/vim-endwise'

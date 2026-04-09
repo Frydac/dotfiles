@@ -2,7 +2,6 @@ local nightfox = {
     "EdenEast/nightfox.nvim",
     -- tag = 'v1.0.0',
     config = function()
-
         -- if IsNotAvailable("nightfox") then return end
         -- vim.g.lightline.colorscheme = 'nightfox'
         -- local color_lsp_cxx_magenta = "#AD7FA8"
@@ -21,11 +20,11 @@ local nightfox = {
                 -- Compiled file's destination location
                 compile_path = vim.fn.stdpath("cache") .. "/nightfox",
                 compile_file_suffix = "_compiled", -- Compiled file suffix
-                transparent = false, -- Disable setting background
-                terminal_colors = true, -- Set terminal colors (vim.g.terminal_color_*) used in `:terminal`
-                dim_inactive = false, -- Non focused panes set to alternative background
-                styles = { -- Style to be applied to different syntax groups
-                    comments = "italic", -- Value is any valid attr-list value `:help attr-list`
+                transparent = false,               -- Disable setting background
+                terminal_colors = true,            -- Set terminal colors (vim.g.terminal_color_*) used in `:terminal`
+                dim_inactive = false,              -- Non focused panes set to alternative background
+                styles = {                         -- Style to be applied to different syntax groups
+                    comments = "italic",           -- Value is any valid attr-list value `:help attr-list`
                     conditionals = "NONE",
                     constants = "NONE",
                     functions = "NONE",
@@ -168,7 +167,6 @@ local nightfox = {
         -- require('nightfox').load('nightfox')
         -- vim.cmd [[colorscheme palenightfall]]
         vim.cmd [[colorscheme nightfox]]
-
     end
 }
 
@@ -183,9 +181,63 @@ local rosepine = {
     'rose-pine/neovim',
     name = 'rose-pine'
 }
+local tokyonight_day = {
+    "folke/tokyonight.nvim",
+    priority = 1000,
+    config = function()
+        -- vim.o.background = "light"
+        -- vim.cmd("colorscheme tokyonight-day")
+
+        -- vim.api.nvim_set_hl(0, "CursorLine", { bg = "#D8DEE9" })
+        -- vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#2E3440", bg = "#D8DEE9", bold = true })
+        -- vim.api.nvim_set_hl(0, "Cursor", { fg = "#2E3440", bg = "#81A1C1" })
+        -- vim.api.nvim_set_hl(0, "Normal", { fg = "#2E3440" })
+        vim.cmd [[colorscheme tokyonight-day]]
+    end,
+}
+
+local vscode = {
+    'Mofiqul/vscode.nvim',
+    config = function()
+        vim.o.background = 'light'
+        vim.cmd [[colorscheme vscode]]
+    end
+}
+
+local catppuccin = {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    config = function()
+        vim.o.background = 'light'
+        vim.cmd [[colorscheme catppuccin]]
+    end
+}
+
+local cyberdream = {
+    "scottmckendry/cyberdream.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+        require("cyberdream").setup({
+            -- Set light or dark variant
+            variant = "light", -- use "light" for the light variant. Also accepts "auto" to set dark or light colors based on the current value of `vim.o.background`
+            highlights = {
+                CursorLine = { bg = "#dddddd" },
+                Visual = { bg = "#c0c0c0" },
+            },
+        })
+        vim.o.background = 'light'
+        vim.cmd [[colorscheme cyberdream]]
+    end
+}
 
 return {
     nightfox,
     -- rosepine,
     -- palenightfall
+    -- tokyonight_day
+    -- catppuccin
+    -- cyberdream
+    -- vscode
 }

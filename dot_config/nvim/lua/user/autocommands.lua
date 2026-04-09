@@ -7,7 +7,7 @@ vim.cmd [[ augroup cmds | autocmd! | augroup end ]]
 -- pane, some autosave plugin might be better, though I've had issues with lsp
 -- going at it.
 -- vim.cmd [[ autocmd cmds FocusLost * silent! wa ]]
-vim.cmd [[ autocmd cmds FocusLost * if &modifiable | silent! write | endif ]]
+vim.cmd [[ autocmd cmds FocusLost * if &modifiable | silent! wa | endif ]]
 
 -- Preview window with line wrap
 vim.cmd [[ autocmd cmds WinEnter * if &previewwindow | setlocal wrap | endif ]]

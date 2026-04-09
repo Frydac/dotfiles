@@ -437,7 +437,6 @@ function Snips.endl() return s("el", fmt([[std::endl{}]], { i(1, ";") })) end
 function Snips.unsigned_int_sn(pos) return sn(pos, t("unsigned int")) end
 
 function Snips.mss(c_or_cpp)
-    local ts_utils = require("nvim-treesitter.ts_utils")
     local print_error = require('user.notify').notify_error
 
     -- TODO: only supports 1 line range, only needed for return type now
@@ -477,7 +476,11 @@ function Snips.mss(c_or_cpp)
     end
 
     local function get_return_type_from_parent_function_at_cursor()
-        local node = ts_utils.get_node_at_cursor()
+        local ok, parser = pcall(vim.treesitter.get_parser, 0)
+        if ok and parser then
+            parser:parse()
+        end
+        local node = vim.treesitter.get_node()
         if not node then
             print_error("Can't get node at cursor")
             return nil
