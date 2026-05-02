@@ -1,6 +1,20 @@
 -- lazy.nvim
 return {
     "robitx/gp.nvim",
+    cmd = {
+        "GpChatNew",
+        "GpChatToggle",
+        "GpChatFinder",
+        "GpRewrite",
+        "GpAppend",
+        "GpPrepend",
+        "GpEnew",
+        "GpNew",
+        "GpVnew",
+        "GpTabnew",
+        "GpPopup",
+        "GpImplement",
+    },
     config = function()
         local conf = {
             -- For customization, refer to Install > Configuration in the Documentation/Readme

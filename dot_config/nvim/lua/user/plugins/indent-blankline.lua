@@ -1,6 +1,7 @@
 return {
     "lukas-reineke/indent-blankline.nvim",
     disable = false,
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
         -- vim.g.indent_blankline_char_list = {'|', '¦', '┆', '┊'}
         -- vim.g.indent_blankline_char = '┆'

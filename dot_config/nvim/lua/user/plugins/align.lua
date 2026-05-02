@@ -12,11 +12,9 @@ return {
         end,
     }, {
         "godlygeek/tabular",
-        config = function()
-            vim.cmd([[
-            nnoremap <leader>ab :Tabularize /
-            vnoremap <leader>ab :Tabularize /
-            ]])
-        end,
+        cmd = "Tabularize",
+        keys = {
+            { "<leader>ab", ":Tabularize /", mode = { "n", "v" }, desc = "Tabularize" },
+        },
     }
 }

@@ -1,21 +1,13 @@
 return {
     'madskjeldgaard/cppman.nvim',
-    requires = {
+    dependencies = {
         { 'MunifTanjim/nui.nvim' }
     },
+    keys = {
+        { "<leader>cpm", function() require("cppman").open_cppman_for(vim.fn.expand("<cword>")) end, desc = "CPPman word" },
+        { "<leader>cps", function() require("cppman").input() end, desc = "CPPman search" },
+    },
     config = function()
-        local cppman = require "cppman"
-        cppman.setup()
-
-        -- Make a keymap to open the word under cursor in CPPman
-        vim.keymap.set("n", "<leader>cpm", function()
-            cppman.open_cppman_for(vim.fn.expand("<cword>"))
-        end)
-
-        -- Open search box
-        vim.keymap.set("n", "<leader>cps", function()
-            cppman.input()
-        end)
-
+        require("cppman").setup()
     end
 }

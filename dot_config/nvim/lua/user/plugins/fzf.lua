@@ -1,9 +1,11 @@
 -- TODO: repalce with fzf.nvim? fzf.lua? if --no-sort is possible..
 -- get fzf
 return {
-    { 'junegunn/fzf', run = ":call fzf#install()" }, -- not needed when installed with package? run = function() vim.cmd('call fzf#install()') end}
+    { 'junegunn/fzf', lazy = true, build = ":call fzf#install()" }, -- not needed when installed with package? run = function() vim.cmd('call fzf#install()') end}
     {
         'junegunn/fzf.vim',
+        cmd = { 'Files', 'Buffers', 'History', 'RG', 'Rgg' },
+        dependencies = { 'junegunn/fzf' },
         -- disable = true,
         config = function()
             vim.g.fzf_layout = { window = { width = 0.9, height = 0.9 } }

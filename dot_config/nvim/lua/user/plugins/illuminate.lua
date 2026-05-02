@@ -1,5 +1,6 @@
 return {
     "RRethy/vim-illuminate",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
 
         -- default configuration (https://github.com/RRethy/vim-illuminate)

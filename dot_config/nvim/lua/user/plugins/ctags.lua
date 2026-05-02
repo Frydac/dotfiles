@@ -1,6 +1,7 @@
 return {
     {
         "ludovicchabant/vim-gutentags",
+        event = { "BufReadPost", "BufNewFile" },
         config = function()
             vim.g.gutentags_ctags_exclude = { ".ccls*", "*.git", "*.svg", "*.hg", "*.json", "*/.ccls-*" }
             vim.g.gutentags_exclude_filetypes = {
@@ -16,10 +17,12 @@ return {
     },
     {
         "preservim/tagbar",
+        cmd = { "TagbarToggle", "TagbarOpenAutoClose", "TagbarOpen" },
+        keys = {
+            { "<leader>tb", "<cmd>TagbarOpenAutoClose<cr>", desc = "Tagbar" },
+        },
         config = function()
             vim.g.tagbar_position = "botleft vertical"
-            -- vim.api.nvim_set_keymap("n", "<leader>tb", "<cmd>TagbarToggle<cr>", {})
-            vim.api.nvim_set_keymap("n", "<leader>tb", "<cmd>TagbarOpenAutoClose<cr>", {})
         end,
     },
 }

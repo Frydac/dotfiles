@@ -41,7 +41,7 @@ local function setup()
     vim.api.nvim_set_keymap('n', '<leader>tz', '<cmd>Telescope zoxide list<cr>', {})
 
     -- find yank_history, depends on yanky
-    if IsAvailable('yanky', false) then
+    if package.loaded['yanky'] then
         require("telescope").load_extension("yank_history")
         vim.api.nvim_set_keymap('n', '<leader>ty', '<cmd>Telescope yank_history<cr>', {})
     end
@@ -146,6 +146,13 @@ end
 
 return {
     "nvim-telescope/telescope.nvim",
+    cmd = "Telescope",
+    keys = {
+        "<leader>tz", "<leader>ts", "<leader>tw", "<leader>tg", "<leader>th", "<leader>tq",
+        "<leader>tm", "<leader>tf", "<leader>tu", "<leader>to", "<leader>tc", "<leader>td",
+        "<leader>ta", "<leader>tt", "<leader>tr", "<leader>ff", "<leader>b", "<leader>;",
+        "<leader>fg", "<leader>fr", "<leader>en", "<leader>'",
+    },
     dependencies = {
         "nvim-lua/plenary.nvim",
         "jvgrootveld/telescope-zoxide",
@@ -162,7 +169,7 @@ return {
         {
             "nvim-telescope/telescope-dap.nvim",
             config = function()
-                if IsAvailable("telescope") and IsAvailable("dap") then
+                if package.loaded["telescope"] and package.loaded["dap"] then
                     require("telescope").load_extension("dap")
                 end
             end,
@@ -170,7 +177,7 @@ return {
         {
             "nvim-telescope/telescope-live-grep-args.nvim",
             config = function()
-                if IsAvailable("telescope") then
+                if package.loaded["telescope"] then
                     require("telescope").load_extension("live_grep_args")
                     vim.keymap.set('n', "<leader>tr", function()
                         require("telescope").extensions.live_grep_args.live_grep_args()

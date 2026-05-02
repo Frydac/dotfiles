@@ -2,15 +2,16 @@
 return {
     'kevinhwang91/nvim-ufo',
     disable = false,
+    keys = {
+        { 'zR', function() require('ufo').openAllFolds() end, desc = 'Open all folds' },
+        { 'zM', function() require('ufo').closeAllFolds() end, desc = 'Close all folds' },
+        { 'zm', function() require('ufo').closeFoldsWith() end, desc = 'Close folds with level' },
+    },
     dependencies = 'kevinhwang91/promise-async',
     config = function()
         vim.wo.foldlevel = 99 -- feel free to decrease the value
         vim.o.foldlevelstart = 99
         vim.wo.foldenable = true
-
-        vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-        vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
-        vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
 
         -- if IsAvailable('lspconfig') then
         --     -- option 2: nvim lsp as LSP client

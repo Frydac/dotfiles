@@ -1,5 +1,13 @@
 return {
     "gbprod/yanky.nvim",
+    keys = {
+        { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Yanky put after" },
+        { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Yanky put before" },
+        { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "Yanky gput after" },
+        { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "Yanky gput before" },
+        { "<c-p>", "<Plug>(YankyCycleForward)", mode = "n", desc = "Yanky cycle forward" },
+        { "<M-p>", "<Plug>(YankyCycleBackward)", mode = "n", desc = "Yanky cycle backward" },
+    },
     config = function()
         require("yanky").setup({
             ring = {
@@ -28,14 +36,5 @@ return {
                 enabled = true,
             },
         })
-        vim.keymap.set({ "n", "x" }, "p", "<Plug>(YankyPutAfter)")
-        vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
-        vim.keymap.set({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)")
-        vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
-
-        -- TODO: c-n is already mapped to
-        vim.keymap.set("n", "<c-p>", "<Plug>(YankyCycleForward)")
-        vim.keymap.set("n", "<M-p>", "<Plug>(YankyCycleBackward)")
-
     end
 }
