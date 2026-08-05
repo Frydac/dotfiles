@@ -14,7 +14,7 @@ local function setup_mason_tool_installer()
             "solargraph",
             "clangd",
             "json-lsp",
-            "marksman",
+            -- "marksman",
         },
         auto_update = false,
         run_on_start = true,
@@ -89,6 +89,7 @@ end
 
 local function configure_servers()
     configure_server("solargraph", {
+        cmd = { vim.fn.stdpath("data") .. "/mason/bin/solargraph", "stdio" },
         root_markers = { ".solargraph.yml" },
     })
 
@@ -97,12 +98,6 @@ local function configure_servers()
             "clangd",
             "--background-index",
             "--clang-tidy",
-            "--log=verbose",
-            "--header-insertion=never",
-            "--query-driver=/home/emile/.config/auro/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-elf/bin/aarch64-elf-gcc",
-        },
-        initialization_options = {
-            fallbackFlags = { "-I/home/emile/repos/root-all/sdk/nxp.i3d/integration/cpp11/public" },
         },
         on_init = function(client, _)
             client.server_capabilities.semanticTokensProvider = nil
@@ -160,9 +155,12 @@ local function setup_lsp()
     })
 
     require("mason-lspconfig").setup({
-        -- Keep custom-managed servers on the explicit vim.lsp.enable path and
-        -- let mason-lspconfig auto-enable only lightweight builtin configs.
-        automatic_enable = { "marksman" },
+        -- Keep custom-managed servers on the explicit vim.lsp.enable path.
+        -- false = don't auto-enable any installed mason server (default is
+        -- true = enable ALL installed). marksman was the only thing relying
+        -- on auto-enable, and it's disabled here because it crash-loops on the
+        -- Wine `z: -> /` symlink when scanning $HOME (see ~/.ignore).
+        automatic_enable = false,
     })
 
     configure_servers()

@@ -166,7 +166,6 @@ local nightfox = {
         -- require('nightfox').load('nordfox')
         -- require('nightfox').load('nightfox')
         -- vim.cmd [[colorscheme palenightfall]]
-        vim.cmd [[colorscheme nightfox]]
     end
 }
 
@@ -214,6 +213,7 @@ local catppuccin = {
     end
 }
 
+
 local cyberdream = {
     "scottmckendry/cyberdream.nvim",
     lazy = false,
@@ -227,10 +227,52 @@ local cyberdream = {
                 Visual = { bg = "#c0c0c0" },
             },
         })
+
+
+    end
+}
+
+local function setup_colorscheme_switching()
+    local function use_nightfox()
+        vim.o.background = 'dark'
+        vim.cmd [[colorscheme nightfox]]
+    end
+
+    local function use_cyberdream()
         vim.o.background = 'light'
         vim.cmd [[colorscheme cyberdream]]
     end
-}
+
+    local function toggle_colorscheme()
+        if vim.g.colors_name == "nightfox" then
+            use_cyberdream()
+        else
+            use_nightfox()
+        end
+    end
+
+    vim.api.nvim_create_user_command("Light", use_cyberdream, {
+        desc = "Switch to cyberdream light colorscheme",
+        force = true,
+    })
+    vim.api.nvim_create_user_command("Dark", use_nightfox, {
+        desc = "Switch to nightfox dark colorscheme",
+        force = true,
+    })
+    vim.api.nvim_create_user_command("ToggleColorScheme", toggle_colorscheme, {
+        desc = "Toggle between nightfox dark and cyberdream light colorschemes",
+        force = true,
+    })
+
+    -- Load the initial colorscheme after lazy.nvim finishes startup.
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "LazyDone",
+        once = true,
+        callback = use_nightfox,
+    })
+end
+
+setup_colorscheme_switching()
 
 return {
     nightfox,
@@ -238,6 +280,6 @@ return {
     -- palenightfall
     -- tokyonight_day
     -- catppuccin
-    -- cyberdream
+    cyberdream
     -- vscode
 }

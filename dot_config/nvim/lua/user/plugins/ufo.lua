@@ -6,6 +6,14 @@ return {
         { 'zR', function() require('ufo').openAllFolds() end, desc = 'Open all folds' },
         { 'zM', function() require('ufo').closeAllFolds() end, desc = 'Close all folds' },
         { 'zm', function() require('ufo').closeFoldsWith() end, desc = 'Close folds with level' },
+
+        -- make sure the plugin loads when pressing any of these keys
+        { 'zc', desc = 'Close fold' },
+        { 'zo', desc = 'Open fold' },
+        { 'za', desc = 'Toggle fold' },
+        { 'zC', desc = 'Close folds recursively' },
+        { 'zO', desc = 'Open folds recursively' },
+        { 'zA', desc = 'Toggle folds recursively' },
     },
     dependencies = 'kevinhwang91/promise-async',
     config = function()
@@ -67,9 +75,14 @@ return {
             return newVirtText
         end
 
+        local cpp_folds = require('user.plugins.ufo.cpp_folds')
+
         require('ufo').setup({
             open_fold_hl_timeout = 50,
             provider_selector = function(bufnr, filetype, buftype)
+                if filetype == 'c' or filetype == 'cpp' then
+                    return cpp_folds.get_c_cpp_folds
+                end
                 return { 'treesitter', 'indent' }
             end,
 

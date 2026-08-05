@@ -32,6 +32,11 @@ return {
             -- icons = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰎱 ", "󰎳 " },
 
         },
+        html = {
+            comment = {
+                conceal = false,
+            },
+        },
         completions = { lsp = { enabled = true } },
     },
 }

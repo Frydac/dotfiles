@@ -110,6 +110,18 @@ local function setup()
 
     if IsAvailable("aerial") then
         require('aerial').setup()
+        -- require("aerial").setup({
+        --     show_guides = true,
+        --     filter_kind = {
+        --         "Class",
+        --         "Struct",
+        --         "Method",
+        --         "Function",
+        --         "Constructor",
+        --         "Field",
+        --         "Property",
+        --     },
+        -- })
     end
 
     -- `:` cmdline setup. Maybe wilder is better..

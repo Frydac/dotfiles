@@ -17,6 +17,7 @@ local fugitive = {
         { '<leader>gr', '<cmd>Gread<CR>', desc = 'Git read' },
         { '<leader>gw', '<cmd>Gwrite<CR>', desc = 'Git write' },
         { '<leader>gl', '<cmd>Gclog<CR>', desc = 'Git log' },
+        -- { '<leader>gh', '<cmd>0Gclog<CR>', desc = 'Git log' },
         { '<leader>gp', ':Ggrep ', desc = 'Git grep' },
         { '<leader>gm', ':Gmove ', desc = 'Git move' },
         { '<leader>gb', '<cmd>Git blame<CR>', desc = 'Git blame' },

@@ -13,8 +13,8 @@ function _G.__flip_flop_comment()
     local padding = true
     local is_commented = U.is_commented(ll, rr, padding)
 
-    local rcom = {}      -- ranges of commented lines
-    local cl = s[1]      -- current line
+    local rcom = {}         -- ranges of commented lines
+    local cl = s[1]         -- current line
     local rs, re = nil, nil -- range start and end
     local lines = U.get_lines(range)
     for _, line in ipairs(lines) do
@@ -25,7 +25,7 @@ function _G.__flip_flop_comment()
             end
         else
             rs = rs or cl -- set range start if not set
-            re = cl -- update range end
+            re = cl       -- update range end
         end
         cl = cl + 1
     end
@@ -85,6 +85,11 @@ return {
                 ---block-comment keymap already has <leader>b to open buffers
                 -- block = '<leader>bc',
             },
+            pre_hook = function()
+                if vim.bo.filetype == "conf" then
+                    return vim.bo.commentstring
+                end
+            end,
 
             ---LHS of operator-pending mappings in NORMAL + VISUAL mode
             ---@type table

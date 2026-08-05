@@ -98,6 +98,7 @@ local function setup()
             , {})
     else
         vim.keymap.set('n', '<leader>ff', function() require("telescope.builtin").find_files() end, {})
+        vim.keymap.set('n', '<leader>fF', function() require("telescope.builtin").find_files({ no_ignore = true }) end, {})
         vim.keymap.set(
             'n', '<leader>b',
             function() require("telescope.builtin").buffers({ sort_mru = true, tiebreak = function() return false end }) end
@@ -182,6 +183,7 @@ return {
                     vim.keymap.set('n', "<leader>tr", function()
                         require("telescope").extensions.live_grep_args.live_grep_args()
                     end)
+                    vim.keymap.set("n", "<leader>tR", function() require("telescope").extensions.live_grep_args.live_grep_args({ additional_args = { "--no-ignore", }, }) end)
                 end
             end,
         },

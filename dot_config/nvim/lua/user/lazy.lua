@@ -41,6 +41,8 @@ local plugins = {
     require("user.plugins.dap"),
     require("user.plugins.dial"),  -- additional <c-x>, <c-a> increase/decrease functionality
     require("user.plugins.diffview"),
+    require("user.plugins.codediff"),
+
     require("user.plugins.flash"), -- extended s/f find functionality
     require("user.plugins.fzf"),
     require("user.plugins.fzf_lua"),
@@ -71,10 +73,12 @@ local plugins = {
     require("user.plugins.mini.files"),
     -- require("user.plugins.mini.surround"),
     require("user.plugins.oil"),
+    require("user.plugins.outline"),
     -- require("user.plugins.opencode"),
     require("user.plugins.persistence"),
     require("user.plugins.replacer"),
     require("user.plugins.render_markdown_nvim"),
+    require("user.plugins.satellite"), -- satellite.nvim is a Neovim plugin that displays decorated scrollbars
     require("user.plugins.sideways"),
     require("user.plugins.symbols"),
     require("user.plugins.surround_nvim"),
