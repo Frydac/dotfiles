@@ -1,4 +1,5 @@
 return {
+    -- code outline: seems to work better with C++/C than aerial
     "hedyhli/outline.nvim",
     config = function()
         -- Example mapping to toggle outline

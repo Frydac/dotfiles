@@ -9,34 +9,35 @@
 
 return {
     "andrewferrier/debugprint.nvim",
+    lazy = false,
+    version = "*",
     opts = {
         keymaps = {
             normal = {
-                plain_below = "g?p",
-                plain_above = "g?P",
-                variable_below = "g?v",
-                variable_above = "g?V",
+                plain_below = "<leader>ip",
+                plain_above = "<leader>iP",
+                variable_below = "<leader>iv",
+                variable_above = "<leader>iV",
                 variable_below_alwaysprompt = "",
                 variable_above_alwaysprompt = "",
-                surround_plain = "g?sp",
-                surround_variable = "g?sv",
+                surround_plain = "",
+                surround_variable = "",
                 surround_variable_alwaysprompt = "",
-                textobj_below = "g?o",
-                textobj_above = "g?O",
-                textobj_surround = "g?so",
+                textobj_below = "",
+                textobj_above = "",
+                textobj_surround = "",
                 toggle_comment_debug_prints = "",
                 delete_debug_prints = "",
             },
             insert = {
-                plain = "<C-G>p",
-                variable = "<C-G>v",
+                plain = "",
+                variable = "",
             },
             visual = {
-                variable_below = "g?v",
-                variable_above = "g?V",
+                variable_below = "<leader>iv",
+                variable_above = "<leader>iV",
             },
         },
-        -- … Other options
     },
 }
 

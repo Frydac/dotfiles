@@ -19,6 +19,7 @@ end
 local plugins = {
     -- require("user.plugins.hop"),
 
+    require("user.plugins.aerial"),
     require("user.plugins.ai_gpt"),
     require("user.plugins.avante"), -- ai plugin
     -- require("user.plugins.agentic"), -- ai plugin
@@ -92,7 +93,7 @@ local plugins = {
 
     require("user.plugins.hightlight_word_under_cursor"),
 
-    -- require("user.plugins.debugprint"),
+    require("user.plugins.debugprint"),
 
     require("user.plugins.gitlinker"),      -- get link to online repository, usage: `<leader>gy` on a selection
     require("user.plugins.hlsens"),         -- highlight search items and count

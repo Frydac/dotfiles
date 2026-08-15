@@ -108,22 +108,6 @@ local function setup()
         })
     end
 
-    if IsAvailable("aerial") then
-        require('aerial').setup()
-        -- require("aerial").setup({
-        --     show_guides = true,
-        --     filter_kind = {
-        --         "Class",
-        --         "Struct",
-        --         "Method",
-        --         "Function",
-        --         "Constructor",
-        --         "Field",
-        --         "Property",
-        --     },
-        -- })
-    end
-
     -- `:` cmdline setup. Maybe wilder is better..
     cmp.setup.cmdline(':', {
         mapping = cmp.mapping.preset.cmdline(),
@@ -187,7 +171,6 @@ return {
         { "f3fora/cmp-spell" },
         { "saadparwaiz1/cmp_luasnip" },
         -- { "ray-x/lsp_signature.nvim" },
-        {'stevearc/aerial.nvim'}, -- code outline :AerialToggle TODO: make shortcuts? -> doesn't show signature
         { "lukas-reineke/cmp-under-comparator" },
         { "petertriho/cmp-git" },
         -- {
