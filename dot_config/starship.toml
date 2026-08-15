@@ -254,7 +254,8 @@ symbol = " "
 
 [time]
 disabled = false
-format = "🕒 [$time]($style) "
-# format = "🕒 [$time] "
+# The clock glyph requires a Nerd Font (or another Font Awesome fallback).
+format = "[  $time]($style) "
+# format = " [$time] "
 time_format = "%T"  # This shows HH:MM:SS
-style = "bold cyan"
+style = "grey"

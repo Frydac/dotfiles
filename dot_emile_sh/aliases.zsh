@@ -174,7 +174,7 @@ alias mp4d='mp4dump --format json'
 function imhexd() {
     # read env variable if it exists, otherwise use default
     if [ -z "${AURO_IMHEX_MP4}" ]; then
-        AURO_IMHEX_MP4="/home/emile/repos/root-all/comp/cx/int-mp4/imhex/imhex_mp4_with_auro.hexpat"
+        AURO_IMHEX_MP4="$HOME/repos/root-all/comp/cx/int-mp4/imhex/imhex_mp4_with_auro.hexpat"
     fi
 
     imhex --pl format --pattern "$AURO_IMHEX_MP4" "$@"
@@ -194,8 +194,8 @@ function gt() {
     nohup gvim --remote-tab-silent "$@" > /dev/null 2>&1 & disown
 }
 
-if [ -f /home/emile/Downloads/cdargs-1.35/contrib/cdargs-bash.sh ]; then
-    . /home/emile/Downloads/cdargs-1.35/contrib/cdargs-bash.sh
+if [ -f "$HOME/Downloads/cdargs-1.35/contrib/cdargs-bash.sh" ]; then
+    . "$HOME/Downloads/cdargs-1.35/contrib/cdargs-bash.sh"
 elif [ -f /usr/share/doc/cdargs/examples/cdargs-bash.sh ]; then
     . /usr/share/doc/cdargs/examples/cdargs-bash.sh
 elif [ -f /usr/share/cdargs/cdargs-bash.sh ]; then
@@ -257,13 +257,15 @@ function reset_pci_network {
 #     /usr/lib/icecream/sbin/iceccd -d &
 # }
 
+# Linux-specific paths below require the ccache and icecream packages.
 function use_ccache_icecc {
     # In this folder there are wrappers for gcc and clang that need to come
     # first in the path
     export PATH=/usr/lib/ccache/bin/:$PATH
     # Tell ccache to use icecc (gcc clang wrapper) in stead of gcc/clang
     export CCACHE_PREFIX=/usr/lib/icecream/bin/icecc
-    export auro_j=50
+    # Shared build parallelism for the current home/work machines.
+    export auro_j=90
 }
 
 function use_ccache {
@@ -314,19 +316,20 @@ alias connect_hp='bluetoothctl power on && bluetoothctl connect F8:4E:17:E8:62:A
 #powerline-daemon -q
 #POWERLINE_BASH_CONTINUATION=1
 #POWERLINE_BASH_SELECT=1
-#/home/emile/.local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
+#$HOME/.local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
 
+# These helpers require the Teensy loader at "$HOME/Teensy loader/teensy".
 function teensy_gaming {
     cp ~/.teensy_gaming ~/.teensy
-    call "/home/emile/Teensy loader/teensy"
-    /home/emile/"Teensy loader"/teensy&
+    call "$HOME/Teensy loader/teensy"
+    "$HOME/Teensy loader/teensy" &
 }
 
 alias tg='teensy_gaming'
 
 function teensy_typing {
     cp ~/.teensy_typing ~/.teensy
-    /home/emile/"Teensy loader"/teensy&
+    "$HOME/Teensy loader/teensy" &
 }
 
 alias tt='teensy_typing'
@@ -334,8 +337,13 @@ alias tt='teensy_typing'
 
 alias logout=awesome-client 'awesome.quit()'
 
+# Hardware-specific: requires minicom, sudo access, and the expected USB serial
+# adapters at /dev/ttyUSB0 (RK) and /dev/ttyUSB3 (NXP).
+alias minicom_rk='TERM=xterm-256color sudo minicom -b 1500000 -D /dev/ttyUSB0 --capturefile=/tmp/minicom_rk_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
+alias minicom_nxp='TERM=xterm-256color sudo minicom -D /dev/ttyUSB3 --capturefile=/tmp/minicom_nxp_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
 
-if [ -f /home/emile/repos/root-all/propr/CoreDesign/build/server/names.sh ]; then
-    . /home/emile/repos/root-all/propr/CoreDesign/build/server/names.sh
+
+if [ -f "$HOME/repos/root-all/propr/CoreDesign/build/server/names.sh" ]; then
+    . "$HOME/repos/root-all/propr/CoreDesign/build/server/names.sh"
 fi
 
