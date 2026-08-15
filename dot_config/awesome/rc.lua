@@ -6,21 +6,6 @@ pcall(require, "luarocks.loader")
 local gears = require("gears")
 local awful = require("awful")
 
--- {{{ xrandr setup
-
-local screen_main = 'DP-4'
--- local screen_left = 'DP-0'
--- local screen_right = 'HDMI-0'
-local screen_right = 'DP-0'
-
--- NOTE: this is better in .xinitrc I think which is executed before rc.lua so primary screen is set properly <- does not work when awesome wm is loaded apparently
--- awful.util.spawn("xrandr --output " .. screen_main .. " --mode 2560x1440 --rate 144.00 --primary")
-awful.util.spawn("xrandr --output " .. screen_main .. " --mode 2560x1440 --rate 144.00 --primary")
--- awful.util.spawn("xrandr --output " .. screen_left .. " --left-of " .. screen_main)
-awful.util.spawn("xrandr --output " .. screen_right .. " --right-of " .. screen_main)
-
--- }}}
-
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
@@ -128,6 +113,12 @@ local mykeyboardlayout = awful.widget.keyboardlayout()
 -- Create a textclock widget
 local mytextclock = wibox.widget.textclock()
 
+-- emile: volume widget. Required at file scope (not inside the per-screen
+-- wibar function) so the XF86Audio keybinds in globalkeys can reach it.
+-- The custom wpctl widget is PipeWire-native; the original volume-widget
+-- shells out to pacmd, which pipewire-pulse does not provide.
+local volume_widget = require("custom_widgets.wpctl.volume")
+
 -- emile: custom calendar widget
 local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
 local cw = calendar_widget({
@@ -190,8 +181,32 @@ local function set_wallpaper(s)
     end
 end
 
+local function update_wibar_geometry(s)
+    if not s.mywibox then
+        return
+    end
+
+    local top_offset  = 10
+    local side_margin = 20
+    local bar_height  = 28
+
+    s.mywibox:geometry({
+        x = s.geometry.x + side_margin,
+        y = s.geometry.y + top_offset,
+        width = math.max(1, s.geometry.width - side_margin * 2),
+        height = bar_height,
+    })
+
+    s.mywibox:struts({
+        top = top_offset + bar_height
+    })
+end
+
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
+screen.connect_signal("property::geometry", function(s)
+    set_wallpaper(s)
+    update_wibar_geometry(s)
+end)
 
 local mytags = {
     names  = {
@@ -249,55 +264,17 @@ awful.screen.connect_for_each_screen(function(s)
         buttons = tasklist_buttons
     }
 
-    -- Create the wibox
-    -- local top_offset = 40
-    -- local side_margin = 20
-    -- s.mywibox = awful.wibar({
-    --     position = "top",
-    --     margins = {
-    --         top = 10,
-    --         left = 20,
-    --         right = 20,
-    --     },
-    --     screen = s,
-    --     -- height = 28,
-    --     -- x = s.geometry.x + side_margin,
-    --     -- y = s.geometry.y + top_offset,
-    --     -- width = s.geometry.width - side_margin * 2,
-    --     -- height = s.geometry.height - top_offset * 2
-    --     ontop = true,
-    --     shape = function(cr, w, h)
-    --         gears.shape.rounded_rect(cr, w, h, 8)
-    --     end,
-    -- })
-
-    local top_offset  = 10
-    local side_margin = 20
-    local bar_height  = 28
-
-    s.mywibox = awful.wibar({
+    s.mywibox = wibox({
         screen = s,
-        type = "normal",
-        height = bar_height,
-        width  = s.geometry.width - side_margin * 2,
-        x      = s.geometry.x + side_margin,
-        y      = s.geometry.y + top_offset,
-        -- ontop  = true,
+        visible = true,
+        ontop = true,
+        type = "dock",
         bg     = "#1e1e2e",
         shape  = function(cr, w, h)
             gears.shape.rounded_rect(cr, w, h, 8)
         end,
     })
-
-    s.mywibox:geometry({
-        x = s.geometry.x + side_margin,
-        y = s.geometry.y + top_offset,
-    })
-
-    -- reserve space so windows don't overlap
-    s.mywibox:struts({
-        top = bar_height + top_offset
-    })
+    update_wibar_geometry(s)
 
     -- require custom widgets
     -- local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
@@ -338,9 +315,12 @@ awful.screen.connect_for_each_screen(function(s)
             mykeyboardlayout,
             -- wibox.widget.systray(),
             my_systray,
-            -- volume_widget({
-            --     widget_type = 'arc'
-            -- }),
+            volume_widget({
+                widget_type = 'icon_and_text',
+                mixer_cmd = 'pavucontrol', -- widget defaults to pwvucontrol, not installed
+                step = 5,
+                tooltip = true,
+            }),
             cpu_widget(),
             net_speed_widget(),
             fs_widget(),
@@ -361,6 +341,38 @@ root.buttons(gears.table.join(
     awful.button({}, 5, awful.tag.viewprev)
 ))
 -- }}}
+
+local crosshair = require("crosshair")
+
+local function toggle_picom()
+    awful.spawn.easy_async_with_shell([[
+        if ! command -v picom >/dev/null 2>&1; then
+            printf unavailable
+        elif pgrep -u "$USER" -x picom >/dev/null 2>&1; then
+            if pkill -u "$USER" -x picom; then
+                printf off
+            else
+                printf error
+            fi
+        else
+            picom >/dev/null 2>&1 &
+            printf on
+        fi
+    ]], function(out)
+        local state = out:match("%S+") or "error"
+        local messages = {
+            on = "compositor on",
+            off = "compositor off",
+            unavailable = "picom is not installed",
+            error = "could not toggle compositor",
+        }
+        naughty.notify({
+            title = "picom",
+            text = messages[state] or messages.error,
+            timeout = 2,
+        })
+    end)
+end
 
 -- {{{ Key bindings
 local globalkeys = gears.table.join(
@@ -409,7 +421,7 @@ local globalkeys = gears.table.join(
         { description = "go back", group = "client" }),
 
     -- Standard program
-    awful.key({ modkey, }, "Return", function() awful.spawn(terminal) end,
+    awful.key({ modkey, }, "Return", function() awful.spawn(terminal, { screen = mouse.screen }) end,
         { description = "open a terminal", group = "launcher" }),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
         { description = "reload awesome", group = "awesome" }),
@@ -471,6 +483,16 @@ local globalkeys = gears.table.join(
         { description = "open firefox", group = "launcher" }),
     awful.key({ modkey, }, "a", function() awful.spawn("rofi -show drun") end,
         { description = "open rofi", group = "launcher" }),
+    awful.key({ modkey, "Shift" }, "x", function() crosshair.toggle() end,
+        { description = "toggle crosshair", group = "awesome" }),
+    awful.key({}, "XF86AudioRaiseVolume", function() volume_widget:inc(5) end,
+        { description = "volume up", group = "audio" }),
+    awful.key({}, "XF86AudioLowerVolume", function() volume_widget:dec(5) end,
+        { description = "volume down", group = "audio" }),
+    awful.key({}, "XF86AudioMute", function() volume_widget:toggle() end,
+        { description = "toggle mute", group = "audio" }),
+    awful.key({ modkey, "Shift" }, "p", toggle_picom,
+        { description = "toggle picom (compositor)", group = "awesome" }),
     awful.key({ modkey, }, "b", function() awful.spawn("rofi-bluetooth") end,
         { description = "open rofi-bluetooth", group = "launcher" }) -- ,
     -- awful.key({ modkey, }, "n", function() awful.spawn("kitty -d ~/repos/root-all -e nvim") end,
@@ -604,7 +626,6 @@ awful.rules.rules = {
             raise = true,
             keys = clientkeys,
             buttons = clientbuttons,
-            screen = awful.screen.preferred,
             placement = awful.placement.no_overlap + awful.placement.no_offscreen
         }
     },
@@ -657,18 +678,22 @@ awful.rules.rules = {
 -- emile: rules for starting programs at boot
 
 local window_pos_rules = {
-    { rule = { class = "firefox" }, properties = { screen = screen_main, tag = mytags.names[2] } },
-    { rule = { class = "Gvim" }, properties = { screen = screen_main, tag = mytags.names[1] } },
-    { rule = { class = "Tilix" }, properties = { screen = screen_main, tag = mytags.names[3] } },
-    { rule = { name = "kitty" }, properties = { screen = screen_main, tag = mytags.names[3] } },
-    { rule = { name = "nvim" }, properties = { screen = screen_main, tag = mytags.names[1] } },
-    { rule = { class = "Slack" }, properties = { screen = screen_main, tag = mytags.names[9] } },
-    { rule = { class = "discord" }, properties = { screen = screen_main, tag = mytags.names[9] } },
-    { rule = { name = "Microsoft Teams" }, properties = { screen = screen_main, tag = mytags.names[7] } },
+    { rule = { class = "firefox" }, properties = { screen = screen.primary, tag = mytags.names[2] } },
+    { rule = { class = "Gvim" }, properties = { screen = screen.primary, tag = mytags.names[1] } },
+    { rule = { class = "Tilix" }, properties = { screen = screen.primary, tag = mytags.names[3] } },
+    -- { rule = { name = "kitty" }, properties = { screen = screen.primary, tag = mytags.names[3] } },
+    { rule = { name = "nvim" }, properties = { screen = screen.primary, tag = mytags.names[1] } },
+    { rule = { class = "Slack" }, properties = { screen = screen.primary, tag = mytags.names[9] } },
+    { rule = { class = "discord" }, properties = { screen = screen.primary, tag = mytags.names[9] } },
+    { rule = { name = "Microsoft Teams" }, properties = { screen = screen.primary, tag = mytags.names[7] } },
 
     -- { rule = { class = "Gnome-system-monitor" }, properties = { screen = screen_left, tag = mytags.names[1] } },
     -- { rule = { class = "icemon" }, properties = { screen = screen_left, tag = mytags.names[1] } },
 }
+
+for _, rule in ipairs(window_pos_rules) do
+    table.insert(awful.rules.rules, rule)
+end
 
 -- }}}
 
@@ -734,19 +759,73 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+-- emile: keep the wibar from covering fullscreen clients.
+-- The custom wibox uses ontop=true so it floats above tiled clients in the
+-- margin gap, but that also keeps it above fullscreen windows (e.g. fullscreen
+-- video). Drop ontop whenever any client on the screen is fullscreen, or while
+-- the crosshair is up -- games run borderless windowed rather than fullscreen,
+-- so the fullscreen check alone never fires for them.
+local function update_wibar_ontop(s)
+    if not s.mywibox then
+        return
+    end
+    local fullscreen = false
+    for _, c in ipairs(s.clients) do
+        if c.fullscreen then
+            fullscreen = true
+            break
+        end
+    end
+    s.mywibox.ontop = not fullscreen and not crosshair.visible()
+end
+
+client.connect_signal("property::fullscreen", function(c)
+    update_wibar_ontop(c.screen)
+end)
+client.connect_signal("property::screen", function()
+    for s in screen do
+        update_wibar_ontop(s)
+    end
+end)
+client.connect_signal("unmanage", function(c)
+    update_wibar_ontop(c.screen)
+end)
+-- The crosshair is not tied to a screen, so refresh every wibar.
+awesome.connect_signal("crosshair::toggled", function()
+    for s in screen do
+        update_wibar_ontop(s)
+    end
+end)
+-- Re-evaluate existing clients when Awesome reloads an active session.
+for s in screen do
+    update_wibar_ontop(s)
+end
 -- }}}
 
--- {{{
+-- {{{ Startup applications
 
-    -- TODO: check if they are runnning already before spawning them
-awful.spawn.once("workrave", awful.rules.rules)
-awful.spawn.once("nm-applet", awful.rules.rules)
-awful.spawn.once("blueman-applet", awful.rules.rules)
-awful.spawn.with_shell("pgrep -u $USER -x volctl || volctl")
-awful.spawn.with_shell("pgrep -u $USER -x picom || picom")
-awful.spawn.with_shell("pgrep -u $USER -x xsettingsd || xsettingsd")
+local function spawn_optional_once(executable, command)
+    awful.spawn.with_shell(
+        "if command -v " .. executable .. " >/dev/null 2>&1 " ..
+        "&& ! pgrep -u \"$USER\" -x " .. executable .. " >/dev/null 2>&1; then " ..
+        command .. "; fi"
+    )
+end
 
-    -- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this hame, that way we can open multiple
-    -- kitties and have them in the correct tags
+spawn_optional_once("workrave", "workrave")
+spawn_optional_once("nm-applet", "nm-applet")
+spawn_optional_once("blueman-applet", "blueman-applet")
+spawn_optional_once("easyeffects", "easyeffects --hide-window --service-mode")
+
+-- volctl removed: it is GTK4/StatusNotifierItem-only, so under awesome's
+-- XEmbed systray it needs a snixembed bridge that cannot forward scroll
+-- events and cannot place its menu correctly. Replaced by the native
+-- wpctl-widget in the wibar above.
+spawn_optional_once("xsettingsd", "xsettingsd")
+spawn_optional_once("picom", "picom")
+
+-- TODO: start kitty with `kitty --class name1` so its WM_CLASS gets this name,
+-- allowing multiple kitty windows to be placed on different tags.
 
 -- }}}
