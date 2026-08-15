@@ -1,0 +1,5 @@
+[".config/awesome/awesome-wm-widgets"]
+    type = "git-repo"
+    url = "https://github.com/streetturtle/awesome-wm-widgets.git"
+    # Zero disables automatic pulls; refresh explicitly with `chezmoi --refresh-externals=always apply`.
+    refreshPeriod = "0"
