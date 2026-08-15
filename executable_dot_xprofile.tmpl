@@ -1,0 +1,8 @@
+{{- if not (has .profile (list "home" "work")) -}}
+{{-   fail "profile must be home or work" -}}
+{{- end -}}
+#!/bin/sh
+
+if [ -x "$HOME/.config/awesome/display-setup.sh" ]; then
+    "$HOME/.config/awesome/display-setup.sh"
+fi

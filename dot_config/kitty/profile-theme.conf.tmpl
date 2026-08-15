@@ -1,0 +1,7 @@
+{{- if eq .profile "home" -}}
+include ./nightfox.conf
+{{- else if eq .profile "work" -}}
+include ./cyberdream-light.conf
+{{- else -}}
+{{ fail "profile must be home or work" }}
+{{- end -}}

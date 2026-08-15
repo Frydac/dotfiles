@@ -1,0 +1,145 @@
+#!/bin/sh
+{{ if eq .profile "home" }}
+XRANDR_STATE=$(xrandr)
+
+find_output_for_mode() {
+    mode="$1"
+    rate_pattern="$2"
+
+    printf '%s\n' "$XRANDR_STATE" | awk -v mode="$mode" -v rate_pattern="$rate_pattern" '
+        / connected/ { output = $1; next }
+        /^[^ ]/ { output = "" }
+        output && $1 == mode && $0 ~ rate_pattern { print output; exit }
+    '
+}
+
+find_output_with_mode() {
+    mode="$1"
+
+    printf '%s\n' "$XRANDR_STATE" | awk -v mode="$mode" '
+        / connected/ { output = $1; next }
+        /^[^ ]/ { output = "" }
+        output && $1 == mode { print output; exit }
+    '
+}
+
+find_fallback_output() {
+    printf '%s\n' "$XRANDR_STATE" | awk '
+        / connected primary/ { print $1; exit }
+        / connected/ && !fallback { fallback = $1 }
+        END { if (fallback) print fallback }
+    '
+}
+
+output_has_mode() {
+    output="$1"
+    mode="$2"
+
+    printf '%s\n' "$XRANDR_STATE" | awk -v output="$output" -v mode="$mode" '
+        $1 == output && / connected/ { in_output = 1; next }
+        in_output && /^[^ ]/ { exit }
+        in_output && $1 == mode { found = 1; exit }
+        END { exit(found ? 0 : 1) }
+    '
+}
+
+ensure_output_mode() {
+    output="$1"
+    mode_name="$2"
+    width="$3"
+    height="$4"
+    refresh="$5"
+
+    if ! printf '%s\n' "$XRANDR_STATE" | grep -q "^${mode_name} "; then
+        modeline=$(cvt -r "$width" "$height" "$refresh" | awk 'NR==2 { $1=""; sub(/^ /, ""); print }')
+        xrandr --newmode $modeline 2>/dev/null || true
+    fi
+
+    if ! output_has_mode "$output" "$mode_name"; then
+        xrandr --addmode "$output" "$mode_name" 2>/dev/null || true
+    fi
+}
+
+MAIN_OUTPUT=$(find_output_for_mode "2560x1440" "(^|[[:space:]])14(4|3\\.9|3\\.99|4\\.00)")
+FOURK_OUTPUT=$(find_output_with_mode "3840x2160")
+
+if [ -z "$MAIN_OUTPUT" ]; then
+    MAIN_OUTPUT=$(find_output_with_mode "2560x1440")
+fi
+
+if [ -z "$MAIN_OUTPUT" ]; then
+    MAIN_OUTPUT=$(find_fallback_output)
+fi
+
+if [ -n "$MAIN_OUTPUT" ]; then
+    xrandr --output "$MAIN_OUTPUT" --mode 2560x1440 --rate 144.00 --primary 2>/dev/null \
+        || xrandr --output "$MAIN_OUTPUT" --mode 2560x1440 --primary
+fi
+
+if [ -n "$FOURK_OUTPUT" ] && [ "$FOURK_OUTPUT" != "$MAIN_OUTPUT" ] && [ -n "$MAIN_OUTPUT" ]; then
+    ensure_output_mode "$FOURK_OUTPUT" "2560x1440R" 2560 1440 60
+    xrandr --output "$FOURK_OUTPUT" --mode 2560x1440R --right-of "$MAIN_OUTPUT" 2>/dev/null \
+        || xrandr --output "$FOURK_OUTPUT" --mode 2560x1440 --right-of "$MAIN_OUTPUT" 2>/dev/null \
+        || xrandr --output "$FOURK_OUTPUT" --auto --right-of "$MAIN_OUTPUT"
+fi
+
+xinput --set-prop "MX Master Mouse" 'libinput Accel Speed' -0.5 2>/dev/null || true
+{{ else if eq .profile "work" }}
+XRANDR_STATE=$(xrandr)
+
+find_output_with_mode() {
+    mode="$1"
+
+    printf '%s\n' "$XRANDR_STATE" | awk -v mode="$mode" '
+        / connected/ { output = $1; next }
+        /^[^ ]/ { output = "" }
+        output && $1 == mode { print output; exit }
+    '
+}
+
+find_fallback_output() {
+    printf '%s\n' "$XRANDR_STATE" | awk '
+        / connected primary/ { print $1; exit }
+        / connected/ && !fallback { fallback = $1 }
+        END { if (fallback) print fallback }
+    '
+}
+
+find_preferred_mode() {
+    output="$1"
+
+    printf '%s\n' "$XRANDR_STATE" | awk -v output="$output" '
+        $1 == output && / connected/ { in_output = 1; next }
+        in_output && /^[^ ]/ { exit }
+        in_output && /\+/ { print $1; exit }
+    '
+}
+
+WORK_OUTPUT=$(find_output_with_mode "3840x2160")
+
+if [ -z "$WORK_OUTPUT" ]; then
+    WORK_OUTPUT=$(find_fallback_output)
+fi
+
+if [ -n "$WORK_OUTPUT" ]; then
+    if printf '%s\n' "$XRANDR_STATE" | awk -v output="$WORK_OUTPUT" '
+        $1 == output && / connected/ { in_output = 1; next }
+        in_output && /^[^ ]/ { exit }
+        in_output && $1 == "3840x2160" { found = 1; exit }
+        END { exit(found ? 0 : 1) }
+    '; then
+        xrandr --output "$WORK_OUTPUT" --mode 3840x2160 --primary
+    else
+        PREFERRED_MODE=$(find_preferred_mode "$WORK_OUTPUT")
+        if [ -n "$PREFERRED_MODE" ]; then
+            xrandr --output "$WORK_OUTPUT" --mode "$PREFERRED_MODE" --primary
+        else
+            xrandr --output "$WORK_OUTPUT" --auto --primary
+        fi
+    fi
+fi
+
+xinput --set-prop "MX Master Mouse" 'libinput Accel Speed' -0.5 2>/dev/null || true
+{{ else }}
+{{ fail "profile must be home or work" }}
+{{ end -}}

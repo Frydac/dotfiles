@@ -1,0 +1,2 @@
+[General]
+theme={{ if eq .profile "home" }}Matcha-Dark-Azul{{ else if eq .profile "work" }}Matcha-Azul{{ else }}{{ fail "profile must be home or work" }}{{ end }}

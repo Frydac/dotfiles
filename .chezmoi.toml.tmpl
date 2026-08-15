@@ -1,0 +1,7 @@
+{{- $choices := list "home" "work" -}}
+{{- $profile := promptChoiceOnce . "profile" "Choose this machine's profile" $choices "home" -}}
+{{- if not (has $profile $choices) -}}
+{{-   fail "profile must be home or work" -}}
+{{- end -}}
+[data]
+    profile = {{ $profile | quote }}

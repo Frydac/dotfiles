@@ -268,7 +268,7 @@ local function setup_colorscheme_switching()
     vim.api.nvim_create_autocmd("User", {
         pattern = "LazyDone",
         once = true,
-        callback = use_nightfox,
+        callback = {{ if eq .profile "home" }}use_nightfox{{ else if eq .profile "work" }}use_cyberdream{{ else }}{{ fail "profile must be home or work" }}{{ end }},
     })
 end
 
