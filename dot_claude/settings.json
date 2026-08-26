@@ -1,0 +1,74 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(sort *)",
+      "Bash(awk *)",
+      "Bash(sed *)",
+      "Bash(echo *)",
+      "Bash(which *)",
+      "Bash(pdftotext *)",
+      "Bash(pdf2txt *)",
+      "Bash(file *)",
+      "Bash(stat *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git status)",
+      "Bash(noglob rake *)",
+      "Bash(cargo *)"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/home/emile/temp"
+    ]
+  },
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "/home/emile/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "ponytail@ponytail": true,
+    "caveman@caveman": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Path formatting rule (from CLAUDE.md): write source locations as a bare path:line (or path:line:column), absolute or cwd-relative, no ~ prefix, whitespace around it, never prose like \"foo.c (line 42)\".'"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "medium",
+  "tui": "fullscreen",
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true
+}
