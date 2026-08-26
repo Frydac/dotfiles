@@ -68,10 +68,12 @@ M.setup = function()
     -- (re)load file
     vim.api.nvim_set_keymap('n', '<leader><leader>x', '<cmd>w<cr><cmd>luafile %<cr>', {})
 
-    -- vim.api.nvim_set_keymap('n', '<BS>dd', '<cmd>lua vim.diagnostic.enable(false)<cr>', {})
-    -- vim.api.nvim_set_keymap('n', '<BS>de', '<cmd>lua vim.diagnostic.enable(true)<cr>', {})
-    vim.keymap.set('n', '<BS>dd', function() vim.diagnostic.enable(true) end, { desc = 'Enable diagnostics' })
-    vim.keymap.set('n', '<BS>de', function() vim.diagnostic.enable(false) end, { desc = 'Disable diagnostics' })
+    vim.keymap.set('n', '<BS>dd', function()
+        vim.diagnostic.enable(false, { bufnr = 0 })
+    end, { desc = 'Disable diagnostics for this buffer' })
+    vim.keymap.set('n', '<BS>de', function()
+        vim.diagnostic.enable(true, { bufnr = 0 })
+    end, { desc = 'Enable diagnostics for this buffer' })
 
     -- TODO: https://stackoverflow.com/questions/2119754/switch-to-last-active-tab-in-vim
     -- vim.keymap.set('n', '<leader>tl', '', { desc = 'Switch between last tabs' })

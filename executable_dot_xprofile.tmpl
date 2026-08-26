@@ -3,6 +3,10 @@
 {{- end -}}
 #!/bin/sh
 
+{{ if eq .profile "work" -}}
+export QT_QPA_PLATFORMTHEME=qt6ct
+{{ end -}}
+
 if [ -x "$HOME/.config/awesome/display-setup.sh" ]; then
     "$HOME/.config/awesome/display-setup.sh"
 fi
