@@ -69,6 +69,6 @@
   },
   "effortLevel": "medium",
   "tui": "fullscreen",
-  "theme": "dark",
+  "theme": "{{ if eq .profile "work" }}light{{ else }}dark{{ end }}",
   "skipAutoPermissionPrompt": true
 }
