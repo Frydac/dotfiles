@@ -93,7 +93,7 @@ vim.opt.formatlistpat:append('\\|^\\*\\s*')
 vim.opt.formatlistpat:append('\\|^-\\s*')
 
 
-vim.opt.textwidth = 120
+vim.opt.textwidth = 100
 -- draw line at textwidth
 vim.opt.colorcolumn = '+1'
 

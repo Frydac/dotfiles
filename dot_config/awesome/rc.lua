@@ -678,7 +678,7 @@ awful.rules.rules = {
 -- emile: rules for starting programs at boot
 
 local window_pos_rules = {
-    { rule = { class = "firefox" }, properties = { screen = screen.primary, tag = mytags.names[2] } },
+    -- { rule = { class = "firefox" }, properties = { screen = screen.primary, tag = mytags.names[2] } },
     { rule = { class = "Gvim" }, properties = { screen = screen.primary, tag = mytags.names[1] } },
     { rule = { class = "Tilix" }, properties = { screen = screen.primary, tag = mytags.names[3] } },
     -- { rule = { name = "kitty" }, properties = { screen = screen.primary, tag = mytags.names[3] } },

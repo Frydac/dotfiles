@@ -1,13 +1,23 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import {
+	buildExecutionPrompt,
+	clearPlan,
+	extractPlanSteps,
+	nextPendingStep,
+	parseSavedState,
+	renderPlanSteps,
+	replacePlan,
+	type PlanStep,
+	type SavedState,
+	type WorkflowMode,
+} from "./workflow-modes-v2-utils.ts";
 
-type WorkflowMode = "read" | "plan" | "execute";
-
-interface SavedState {
-	mode: WorkflowMode;
-	planSteps: string[];
-	nextStep: number;
-	baselineTools: string[];
-}
+/**
+ * Workflow modes extension.
+ *
+ * V2 persistence and status keys remain stable so existing sessions retain
+ * their saved workflow state.
+ */
 
 const SAFE_TOOLS = ["read", "grep", "find", "ls"];
 const STANDARD_EXECUTE_TOOLS = ["read", "bash", "edit", "write", "grep", "find", "ls"];
@@ -30,32 +40,13 @@ function assistantText(message: unknown): string {
 		.join("\n");
 }
 
-function extractPlanSteps(text: string): string[] {
-	const header = /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\*\*)?Plan(?:\*\*)?\s*:\s*(?:\n|$)/i.exec(text);
-	if (!header || header.index === undefined) return [];
-
-	const section = text.slice(header.index + header[0].length);
-	const steps: string[] = [];
-
-	for (const line of section.split("\n")) {
-		const match = line.match(/^\s*\d+[.)]\s+(.+?)\s*$/);
-		if (match?.[1]) {
-			steps.push(match[1].replace(/^\*\*(.+)\*\*$/, "$1").trim());
-			continue;
-		}
-
-		// Stop at the next section once numbered steps have begun.
-		if (steps.length > 0 && /^\s*#{1,6}\s+/.test(line)) break;
-	}
-
-	return steps;
-}
-
 export default function workflowModes(pi: ExtensionAPI): void {
 	let mode: WorkflowMode = "read";
 	let baselineTools: string[] = [];
-	let planSteps: string[] = [];
+	let planSteps: PlanStep[] = [];
 	let nextStep = 0;
+	let completedSteps = new Set<number>();
+	let lastExecutedStep: number | undefined;
 	let oneStepExecution = false;
 	let executingStep: number | undefined;
 
@@ -69,10 +60,12 @@ export default function workflowModes(pi: ExtensionAPI): void {
 	}
 
 	function persist(): void {
-		pi.appendEntry<SavedState>("workflow-modes", {
+		pi.appendEntry<SavedState>("workflow-modes-v2", {
 			mode,
 			planSteps,
 			nextStep,
+			completedSteps: [...completedSteps].sort((a, b) => a - b),
+			lastExecutedStep,
 			baselineTools,
 		});
 	}
@@ -89,7 +82,7 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		}
 
 		const color = mode === "execute" ? "warning" : mode === "plan" ? "accent" : "success";
-		ctx.ui.setStatus("workflow-mode", ctx.ui.theme.fg(color, label));
+		ctx.ui.setStatus("workflow-mode-v2", ctx.ui.theme.fg(color, label));
 	}
 
 	function applyMode(
@@ -160,6 +153,16 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		handler: async (_args, ctx) => applyMode("execute", ctx),
 	});
 
+	pi.registerShortcut("alt+m", {
+		description: "Select workflow mode",
+		handler: chooseMode,
+	});
+
+	pi.registerShortcut("alt+e", {
+		description: "Enter unrestricted execution mode",
+		handler: (ctx) => applyMode("execute", ctx),
+	});
+
 	async function executePlanStep(stepIndex: number, ctx: ExtensionContext): Promise<void> {
 		const step = planSteps[stepIndex];
 		if (!step) {
@@ -172,9 +175,7 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		applyMode("execute", ctx, { notify: false });
 		ctx.ui.notify(`Executing step ${stepIndex + 1}/${planSteps.length}; read mode will return afterward.`, "warning");
 
-		pi.sendUserMessage(
-			`Execute only this plan step, then stop and report the result:\n\nStep ${stepIndex + 1}: ${step}\n\nDo not begin any later plan step.`,
-		);
+		pi.sendUserMessage(buildExecutionPrompt(step, stepIndex));
 	}
 
 	pi.registerCommand("next", {
@@ -197,25 +198,42 @@ export default function workflowModes(pi: ExtensionAPI): void {
 	pi.registerCommand("retry", {
 		description: "Retry the most recently executed plan step",
 		handler: async (_args, ctx) => {
-			const previous = Math.max(0, nextStep - 1);
-			if (planSteps.length === 0 || nextStep === 0) {
+			if (planSteps.length === 0 || lastExecutedStep === undefined) {
 				ctx.ui.notify("There is no previously executed plan step to retry.", "warning");
 				return;
 			}
-			await executePlanStep(previous, ctx);
+			await executePlanStep(lastExecutedStep, ctx);
 		},
 	});
 
 	pi.registerCommand("steps", {
-		description: "Show the captured plan and execution progress",
-		handler: async (_args, ctx) => {
+		description: "Show plan progress, full step details, or clear the plan",
+		handler: async (args, ctx) => {
+			const action = args.trim().toLowerCase();
+			if (action !== "" && action !== "full" && action !== "clear") {
+				ctx.ui.notify("Usage: /steps [full|clear]", "error");
+				return;
+			}
+
+			if (action === "clear") {
+				const hadPlan = planSteps.length > 0;
+				const cleared = clearPlan();
+				planSteps = cleared.planSteps;
+				nextStep = cleared.nextStep;
+				completedSteps = cleared.completedSteps;
+				lastExecutedStep = cleared.lastExecutedStep;
+				persist();
+				updateStatus(ctx);
+				ctx.ui.notify(hadPlan ? "Active plan cleared." : "No active plan to clear.", "info");
+				return;
+			}
+
 			if (planSteps.length === 0) {
 				ctx.ui.notify("No captured plan yet.", "info");
 				return;
 			}
-			const list = planSteps
-				.map((step, index) => `${index < nextStep ? "✓" : index === nextStep ? "→" : "○"} ${index + 1}. ${step}`)
-				.join("\n");
+
+			const list = renderPlanSteps(planSteps, completedSteps, nextStep, action === "full");
 			ctx.ui.notify(list, "info");
 		},
 	});
@@ -225,7 +243,26 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		if (mode === "read") {
 			instructions = `[WORKFLOW MODE: READ]\nInspect and explain only. Answer questions about the code and prior work. Do not modify files, run commands, or claim to have made changes. Read-only inspection tools are available.`;
 		} else if (mode === "plan") {
-			instructions = `[WORKFLOW MODE: PLAN]\nInvestigate using read-only tools. Do not modify files or run shell commands. Ask for clarification where needed. End with a detailed numbered implementation plan under exactly this heading:\n\nPlan:\n1. ...\n2. ...\n\nInclude relevant files, tests, risks, and dependencies in the steps.`;
+			instructions = `[WORKFLOW MODE: PLAN]
+Investigate using read-only tools. Do not modify files or run shell commands.
+
+If ambiguity or meaningful alternative approaches would materially affect the plan, stop and ask the user for clarification in a normal conversational response. Do not emit a Plan: section until the user has answered. Resolve minor details from the codebase when that is safe.
+
+When the requirements are clear, end with the implementation plan in exactly this Markdown structure:
+
+Plan:
+
+## 1. Short step summary
+
+A detailed Markdown description of the intended change, relevant files or components, rationale, dependencies or risks, and how the result should be verified.
+
+## 2. Next step summary
+
+The detailed description for the next step.
+
+Use sequentially numbered H2 headings for every step and include a non-empty detailed body under each heading. Use H3 or lower headings for any subsections within a step.
+
+Make each step a coherent, reviewable implementation increment that the user can understand and verify with reasonable effort before deciding whether to continue or pivot. Avoid both trivial edit-by-edit steps and overly broad steps that combine independently reviewable changes.`;
 		} else if (oneStepExecution && executingStep !== undefined) {
 			instructions = `[WORKFLOW MODE: EXECUTE ONE STEP]\nImplement only plan step ${executingStep + 1}. Validate that step as appropriate, report the result, and stop. Do not start a later step.`;
 		} else {
@@ -241,18 +278,29 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		const extracted = extractPlanSteps(latestText);
 		if (extracted.length === 0) return;
 
-		planSteps = extracted;
-		nextStep = 0;
+		const replacedExistingPlan = planSteps.length > 0;
+		const replacement = replacePlan(extracted);
+		planSteps = replacement.planSteps;
+		nextStep = replacement.nextStep;
+		completedSteps = replacement.completedSteps;
+		lastExecutedStep = replacement.lastExecutedStep;
 		persist();
 		updateStatus(ctx);
-		ctx.ui.notify(`Captured ${planSteps.length} plan steps. Use /next to execute the first one.`, "info");
+		ctx.ui.notify(
+			replacedExistingPlan
+				? `Replaced the active plan with ${planSteps.length} new steps. Progress reset to step 1; use /next to begin.`
+				: `Captured ${planSteps.length} plan steps. Progress starts at step 1; use /next to begin.`,
+			"info",
+		);
 	});
 
 	pi.on("agent_settled", async (_event, ctx) => {
 		if (!oneStepExecution) return;
 
 		if (executingStep !== undefined) {
-			nextStep = Math.max(nextStep, executingStep + 1);
+			completedSteps.add(executingStep);
+			lastExecutedStep = executingStep;
+			nextStep = nextPendingStep(planSteps, completedSteps);
 		}
 		oneStepExecution = false;
 		executingStep = undefined;
@@ -266,15 +314,18 @@ export default function workflowModes(pi: ExtensionAPI): void {
 
 		let saved: SavedState | undefined;
 		for (const entry of ctx.sessionManager.getBranch()) {
-			if (entry.type === "custom" && entry.customType === "workflow-modes") {
-				saved = entry.data as SavedState;
+			if (entry.type === "custom" && entry.customType === "workflow-modes-v2") {
+				const parsed = parseSavedState(entry.data);
+				if (parsed) saved = parsed;
 			}
 		}
 
 		if (saved) {
-			planSteps = Array.isArray(saved.planSteps) ? saved.planSteps : [];
-			nextStep = Number.isInteger(saved.nextStep) ? saved.nextStep : 0;
-			baselineTools = available([...currentTools, ...(saved.baselineTools ?? [])]);
+			planSteps = saved.planSteps;
+			completedSteps = new Set(saved.completedSteps);
+			lastExecutedStep = saved.lastExecutedStep;
+			nextStep = nextPendingStep(planSteps, completedSteps);
+			baselineTools = available([...currentTools, ...saved.baselineTools]);
 			// Never resume a session with write access unexpectedly.
 			mode = saved.mode === "plan" ? "plan" : "read";
 		}

@@ -27,6 +27,8 @@ local plugins = {
     -- require("user.plugins.autopairs"),
     -- require("user.plugins.blink_cmp"),
     require("user.plugins.block_nvim"), -- use :Block
+    require("user.plugins.chezmoi"),
+    require("user.plugins.chezmoi-template"),
     require("user.plugins.classlayout"),
     require("user.plugins.cmp"),
     -- require("user.plugins.codeium"),
@@ -77,6 +79,7 @@ local plugins = {
     require("user.plugins.outline"),
     -- require("user.plugins.opencode"),
     require("user.plugins.persistence"),
+    require("user.plugins.pi"),
     require("user.plugins.replacer"),
     require("user.plugins.render_markdown_nvim"),
     require("user.plugins.satellite"), -- satellite.nvim is a Neovim plugin that displays decorated scrollbars

@@ -143,6 +143,10 @@ local function setup()
     vim.api.nvim_set_keymap('n', '<leader>ta', '<cmd>lua require("telescope.builtin").builtin()<cr>', {})
 
     vim.keymap.set('n', "<leader>tt", function() require("telescope.builtin").resume() end)
+
+    if IsAvailable('chezmoi') then
+        vim.keymap.set('n', '<leader>te', function() require("chezmoi.pick").telescope() end)
+    end
 end
 
 return {
@@ -152,7 +156,7 @@ return {
         "<leader>tz", "<leader>ts", "<leader>tw", "<leader>tg", "<leader>th", "<leader>tq",
         "<leader>tm", "<leader>tf", "<leader>tu", "<leader>to", "<leader>tc", "<leader>td",
         "<leader>ta", "<leader>tt", "<leader>tr", "<leader>ff", "<leader>b", "<leader>;",
-        "<leader>fg", "<leader>fr", "<leader>en", "<leader>'",
+        "<leader>fg", "<leader>fr", "<leader>en", "<leader>'", "<leader>fz", "<leader>te",
     },
     dependencies = {
         "nvim-lua/plenary.nvim",

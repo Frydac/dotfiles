@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/home/emile/repos/rust/wavalyze/target/release/wavalyze-app "$@"

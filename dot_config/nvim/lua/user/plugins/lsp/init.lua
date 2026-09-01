@@ -5,6 +5,7 @@ local function setup_mason_tool_installer()
         ensure_installed = {
             "bash-language-server",
             "lua-language-server",
+            "typescript-language-server",
             "vim-language-server",
             "jdtls",
             "stylua",
@@ -119,6 +120,25 @@ local function configure_servers()
 
     require("user.plugins.lsp.sumneko_lua").setup()
 
+    configure_server("ts_ls", {
+        cmd = {
+            vim.fn.stdpath("data") .. "/mason/bin/typescript-language-server",
+            "--stdio",
+        },
+        filetypes = {
+            "javascript",
+            "javascriptreact",
+            "typescript",
+            "typescriptreact",
+        },
+        root_markers = {
+            "tsconfig.json",
+            "jsconfig.json",
+            "package.json",
+            ".git",
+        },
+    })
+
     configure_server("jsonls", {
         cmd = { "vscode-json-language-server", "--stdio" },
         filetypes = { "json" },
@@ -167,6 +187,7 @@ local function setup_lsp()
     enable_servers({
         "solargraph",
         "clangd",
+        "ts_ls",
         "lua_ls",
         "java_language_server",
         "jsonls",
