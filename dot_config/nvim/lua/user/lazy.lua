@@ -81,7 +81,10 @@ local plugins = {
     require("user.plugins.persistence"),
     require("user.plugins.pi"),
     require("user.plugins.replacer"),
-    require("user.plugins.render_markdown_nvim"),
+
+    -- require("user.plugins.render_markdown_nvim"),
+    require("user.plugins.render_md"),
+
     require("user.plugins.satellite"), -- satellite.nvim is a Neovim plugin that displays decorated scrollbars
     require("user.plugins.sideways"),
     require("user.plugins.symbols"),

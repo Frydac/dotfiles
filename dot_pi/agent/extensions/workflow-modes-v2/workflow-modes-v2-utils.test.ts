@@ -2,6 +2,7 @@ import {
 	buildExecutionPrompt,
 	clearPlan,
 	extractPlanSteps,
+	executionCompleted,
 	nextPendingStep,
 	parseSavedState,
 	renderPlanSteps,
@@ -109,4 +110,14 @@ Deno.test("execution prompt includes the complete selected step and boundary", (
 	assert(prompt.includes("Update `parser.ts`.\n\n- Preserve lists\n- Verify output"));
 	assert(prompt.includes("Validate the completed work as appropriate"));
 	assert(prompt.includes("Do not begin any later plan step."));
+	assert(prompt.includes("[WORKFLOW STEP COMPLETE]"));
+});
+
+Deno.test("only a normally stopped execution with the completion marker counts as completed", () => {
+	const completed = { role: "assistant", stopReason: "stop", content: [{ type: "text", text: "Done.\n[WORKFLOW STEP COMPLETE]" }] };
+	assert(executionCompleted([completed]));
+	assert(!executionCompleted([{ role: "assistant", stopReason: "stop", content: [{ type: "text", text: "Could not edit." }] }]));
+	assert(!executionCompleted([{ ...completed, stopReason: "aborted" }]));
+	assert(!executionCompleted([{ ...completed, stopReason: "error" }]));
+	assert(!executionCompleted([]));
 });

@@ -68,18 +68,39 @@ M.setup = function()
     -- (re)load file
     vim.api.nvim_set_keymap('n', '<leader><leader>x', '<cmd>w<cr><cmd>luafile %<cr>', {})
 
-    vim.keymap.set('n', '<BS>dd', function()
-        vim.diagnostic.enable(false, { bufnr = 0 })
-    end, { desc = 'Disable diagnostics for this buffer' })
-    vim.keymap.set('n', '<BS>de', function()
-        vim.diagnostic.enable(true, { bufnr = 0 })
-    end, { desc = 'Enable diagnostics for this buffer' })
-    vim.keymap.set('n', '<BS>dD', function()
-        vim.diagnostic.enable(false)
-    end, { desc = 'Disable diagnostics globally' })
-    vim.keymap.set('n', '<BS>dE', function()
-        vim.diagnostic.enable(true)
-    end, { desc = 'Enable diagnostics globally' })
+    -- Satellite keeps separate extmarks, so clear them when diagnostics are disabled.
+    local function set_diagnostics_enabled(enabled, bufnr)
+        vim.diagnostic.enable(enabled, bufnr and { bufnr = bufnr } or nil)
+
+        if IsAvailable("satellite.config", false) and IsAvailable("satellite.view", false) then
+            local satellite_config = require("satellite.config")
+            satellite_config.user_config.handlers.diagnostic =
+                satellite_config.user_config.handlers.diagnostic or {}
+            if not bufnr then
+                satellite_config.user_config.handlers.diagnostic.enable = enabled
+            end
+
+            if not enabled then
+                local namespace = vim.api.nvim_create_namespace("satellite.Handler.diagnostic")
+                for _, buffer in ipairs(bufnr and { bufnr } or vim.api.nvim_list_bufs()) do
+                    if vim.api.nvim_buf_is_loaded(buffer) then
+                        vim.api.nvim_buf_clear_namespace(buffer, namespace, 0, -1)
+                    end
+                end
+            end
+
+            require("satellite.view").schedule_refresh()
+        end
+    end
+
+    vim.keymap.set('n', '<BS>dd', function() set_diagnostics_enabled(false, 0) end,
+        { desc = 'Disable diagnostics for this buffer' })
+    vim.keymap.set('n', '<BS>de', function() set_diagnostics_enabled(true, 0) end,
+        { desc = 'Enable diagnostics for this buffer' })
+    vim.keymap.set('n', '<BS>dD', function() set_diagnostics_enabled(false) end,
+        { desc = 'Disable diagnostics globally' })
+    vim.keymap.set('n', '<BS>dE', function() set_diagnostics_enabled(true) end,
+        { desc = 'Enable diagnostics globally' })
 
     -- TODO: https://stackoverflow.com/questions/2119754/switch-to-last-active-tab-in-vim
     -- vim.keymap.set('n', '<leader>tl', '', { desc = 'Switch between last tabs' })

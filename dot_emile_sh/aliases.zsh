@@ -347,3 +347,5 @@ if [ -f "$HOME/repos/root-all/propr/CoreDesign/build/server/names.sh" ]; then
     . "$HOME/repos/root-all/propr/CoreDesign/build/server/names.sh"
 fi
 
+alias xrandr_hdmi_on='xrandr --output HDMI-0 --mode 2560x1440 --same-as DP-4'
+alias xrandr_hdmi_off='xrandr --output HDMI-0 --off'

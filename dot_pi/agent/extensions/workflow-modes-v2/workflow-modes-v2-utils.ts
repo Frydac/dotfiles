@@ -49,8 +49,28 @@ export function renderPlanSteps(
 		: planSteps.map((step, index) => `${marker(index)} ${index + 1}. ${step.heading}`).join("\n");
 }
 
+const STEP_COMPLETE_MARKER = "[WORKFLOW STEP COMPLETE]";
+
 export function buildExecutionPrompt(step: PlanStep, stepIndex: number): string {
-	return `Execute only this plan step, then stop and report the result:\n\n## ${stepIndex + 1}. ${step.heading}\n\n${step.details}\n\nValidate the completed work as appropriate for this step. Do not begin any later plan step.`;
+	return `Execute only this plan step, then stop and report the result:\n\n## ${stepIndex + 1}. ${step.heading}\n\n${step.details}\n\nValidate the completed work as appropriate for this step. Do not begin any later plan step. If the step succeeds, end your final response with this exact line:\n${STEP_COMPLETE_MARKER}\nDo not output that line if the step could not be completed.`;
+}
+
+export function executionCompleted(messages: unknown[]): boolean {
+	const lastAssistant = [...messages]
+		.reverse()
+		.find((message) => message && typeof message === "object" && (message as { role?: unknown }).role === "assistant") as
+		| { stopReason?: unknown; content?: unknown }
+		| undefined;
+	if (lastAssistant?.stopReason !== "stop" || !Array.isArray(lastAssistant.content)) return false;
+
+	return lastAssistant.content.some(
+		(part) =>
+			part &&
+			typeof part === "object" &&
+			(part as { type?: unknown }).type === "text" &&
+			typeof (part as { text?: unknown }).text === "string" &&
+			(part as { text: string }).text.split("\n").some((line) => line.trim() === STEP_COMPLETE_MARKER),
+	);
 }
 
 export function parseSavedState(value: unknown): SavedState | undefined {

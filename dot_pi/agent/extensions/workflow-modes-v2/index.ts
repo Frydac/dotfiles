@@ -3,6 +3,7 @@ import {
 	buildExecutionPrompt,
 	clearPlan,
 	extractPlanSteps,
+	executionCompleted,
 	nextPendingStep,
 	parseSavedState,
 	renderPlanSteps,
@@ -49,6 +50,7 @@ export default function workflowModes(pi: ExtensionAPI): void {
 	let lastExecutedStep: number | undefined;
 	let oneStepExecution = false;
 	let executingStep: number | undefined;
+	let stepCompleted = false;
 
 	function available(names: string[]): string[] {
 		const all = new Set(pi.getAllTools().map((tool) => tool.name));
@@ -154,8 +156,9 @@ export default function workflowModes(pi: ExtensionAPI): void {
 	});
 
 	pi.registerShortcut("alt+m", {
-		description: "Select workflow mode",
-		handler: chooseMode,
+		description: "Cycle workflow mode",
+		handler: (ctx) =>
+			applyMode(mode === "read" ? "plan" : mode === "plan" ? "execute" : "read", ctx),
 	});
 
 	pi.registerShortcut("alt+e", {
@@ -169,9 +172,16 @@ export default function workflowModes(pi: ExtensionAPI): void {
 			ctx.ui.notify("That plan step does not exist.", "error");
 			return;
 		}
+		if (!ctx.isIdle()) {
+			ctx.ui.notify("Wait for current response to finish before executing a plan step.", "warning");
+			return;
+		}
 
 		oneStepExecution = true;
 		executingStep = stepIndex;
+		stepCompleted = false;
+		completedSteps.delete(stepIndex);
+		nextStep = nextPendingStep(planSteps, completedSteps);
 		applyMode("execute", ctx, { notify: false });
 		ctx.ui.notify(`Executing step ${stepIndex + 1}/${planSteps.length}; read mode will return afterward.`, "warning");
 
@@ -240,7 +250,9 @@ export default function workflowModes(pi: ExtensionAPI): void {
 
 	pi.on("before_agent_start", async (event) => {
 		let instructions: string;
-		if (mode === "read") {
+		if (oneStepExecution && executingStep !== undefined) {
+			instructions = `[WORKFLOW MODE: EXECUTE ONE STEP]\nImplement only plan step ${executingStep + 1}. Validate that step as appropriate, report the result, and stop. Do not start a later step.`;
+		} else if (mode === "read") {
 			instructions = `[WORKFLOW MODE: READ]\nInspect and explain only. Answer questions about the code and prior work. Do not modify files, run commands, or claim to have made changes. Read-only inspection tools are available.`;
 		} else if (mode === "plan") {
 			instructions = `[WORKFLOW MODE: PLAN]
@@ -263,8 +275,6 @@ The detailed description for the next step.
 Use sequentially numbered H2 headings for every step and include a non-empty detailed body under each heading. Use H3 or lower headings for any subsections within a step.
 
 Make each step a coherent, reviewable implementation increment that the user can understand and verify with reasonable effort before deciding whether to continue or pivot. Avoid both trivial edit-by-edit steps and overly broad steps that combine independently reviewable changes.`;
-		} else if (oneStepExecution && executingStep !== undefined) {
-			instructions = `[WORKFLOW MODE: EXECUTE ONE STEP]\nImplement only plan step ${executingStep + 1}. Validate that step as appropriate, report the result, and stop. Do not start a later step.`;
 		} else {
 			instructions = `[WORKFLOW MODE: EXECUTE]\nImplementation tools are enabled. Make the requested changes carefully, inspect files before editing, and validate the result.`;
 		}
@@ -272,40 +282,49 @@ Make each step a coherent, reviewable implementation increment that the user can
 	});
 
 	pi.on("agent_end", async (event, ctx) => {
-		if (mode !== "plan") return;
-		const messages = event.messages as unknown[];
-		const latestText = [...messages].reverse().map(assistantText).find(Boolean) ?? "";
-		const extracted = extractPlanSteps(latestText);
-		if (extracted.length === 0) return;
-
-		const replacedExistingPlan = planSteps.length > 0;
-		const replacement = replacePlan(extracted);
-		planSteps = replacement.planSteps;
-		nextStep = replacement.nextStep;
-		completedSteps = replacement.completedSteps;
-		lastExecutedStep = replacement.lastExecutedStep;
-		persist();
-		updateStatus(ctx);
-		ctx.ui.notify(
-			replacedExistingPlan
-				? `Replaced the active plan with ${planSteps.length} new steps. Progress reset to step 1; use /next to begin.`
-				: `Captured ${planSteps.length} plan steps. Progress starts at step 1; use /next to begin.`,
-			"info",
-		);
+		if (mode === "plan") {
+			const messages = event.messages as unknown[];
+			const latestText = [...messages].reverse().map(assistantText).find(Boolean) ?? "";
+			const extracted = extractPlanSteps(latestText);
+			if (extracted.length > 0) {
+				const replacedExistingPlan = planSteps.length > 0;
+				const replacement = replacePlan(extracted);
+				planSteps = replacement.planSteps;
+				nextStep = replacement.nextStep;
+				completedSteps = replacement.completedSteps;
+				lastExecutedStep = replacement.lastExecutedStep;
+				persist();
+				updateStatus(ctx);
+				ctx.ui.notify(
+					replacedExistingPlan
+						? `Replaced the active plan with ${planSteps.length} new steps. Progress reset to step 1; use /next to begin.`
+						: `Captured ${planSteps.length} plan steps. Progress starts at step 1; use /next to begin.`,
+					"info",
+				);
+			}
+		}
+		if (oneStepExecution) stepCompleted = executionCompleted(event.messages as unknown[]);
 	});
 
 	pi.on("agent_settled", async (_event, ctx) => {
 		if (!oneStepExecution) return;
 
-		if (executingStep !== undefined) {
+		const completed = stepCompleted;
+		if (completed && executingStep !== undefined) {
 			completedSteps.add(executingStep);
 			lastExecutedStep = executingStep;
-			nextStep = nextPendingStep(planSteps, completedSteps);
 		}
+		nextStep = nextPendingStep(planSteps, completedSteps);
 		oneStepExecution = false;
 		executingStep = undefined;
+		stepCompleted = false;
 		applyMode("read", ctx, { notify: false });
-		ctx.ui.notify("Step finished. READ mode restored; ask questions safely or use /next.", "info");
+		ctx.ui.notify(
+			completed
+				? "Step finished. READ mode restored; ask questions safely or use /next."
+				: "Step interrupted. Progress unchanged; use /next to retry.",
+			"info",
+		);
 	});
 
 	pi.on("session_start", async (_event, ctx) => {
