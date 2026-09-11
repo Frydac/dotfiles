@@ -1,0 +1,7 @@
+[[plugin.deps]]
+use = "Frydac/gio-open-with"
+rev = "1c62c8b"
+hash = "8089ef7b6d0730a42ad4a543c2dab657"
+
+[flavor]
+deps = []

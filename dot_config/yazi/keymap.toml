@@ -1,0 +1,4 @@
+[[mgr.prepend_keymap]]
+on   = "<C-o>"
+run  = "plugin gio-open-with"
+desc = "Open hovered file with registered application"
