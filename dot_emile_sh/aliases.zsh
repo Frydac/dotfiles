@@ -339,7 +339,8 @@ alias logout=awesome-client 'awesome.quit()'
 
 # Hardware-specific: requires minicom, sudo access, and the expected USB serial
 # adapters at /dev/ttyUSB0 (RK) and /dev/ttyUSB3 (NXP).
-alias minicom_rk='TERM=xterm-256color sudo minicom -b 1500000 -D /dev/ttyUSB0 --capturefile=/tmp/minicom_rk_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
+# alias minicom_rk='TERM=xterm-256color sudo minicom -b 1500000 -D /dev/ttyUSB0 --capturefile=/tmp/minicom_rk_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
+alias minicom_rk='TERM=xterm-256color minicom -b 1500000 -D /dev/ttyUSB0 --capturefile=/tmp/minicom_rk_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
 alias minicom_nxp='TERM=xterm-256color sudo minicom -D /dev/ttyUSB3 --capturefile=/tmp/minicom_nxp_$(date +%Y-%m-%d_%H.%M.%S).log -O timestamp=extended'
 
 
