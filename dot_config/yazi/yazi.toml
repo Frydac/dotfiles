@@ -7,3 +7,4 @@
    prepend_rules = [
      { url = "*.wav", use = ["wv", "play"] },
    ]
+
