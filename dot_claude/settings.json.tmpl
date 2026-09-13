@@ -30,6 +30,18 @@
     ]
   },
   "model": "opus",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Path formatting rule (from CLAUDE.md): write source locations as a bare path:line (or path:line:column), absolute or cwd-relative, no ~ prefix, whitespace around it, never prose like \"foo.c (line 42)\".'"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "/home/emile/.claude/statusline.sh"
@@ -55,20 +67,9 @@
       }
     }
   },
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Path formatting rule (from CLAUDE.md): write source locations as a bare path:line (or path:line:column), absolute or cwd-relative, no ~ prefix, whitespace around it, never prose like \"foo.c (line 42)\".'"
-          }
-        ]
-      }
-    ]
-  },
   "effortLevel": "medium",
   "tui": "fullscreen",
   "theme": "{{ if eq .profile "work" }}light{{ else }}dark{{ end }}",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "editorMode": "vim"
 }
