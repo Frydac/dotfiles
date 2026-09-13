@@ -118,7 +118,13 @@ local function configure_servers()
         },
     })
 
-    require("user.plugins.lsp.sumneko_lua").setup()
+    configure_server("lua_ls", {
+        settings = {
+            Lua = {
+                completion = { callSnippet = "Replace" },
+            },
+        },
+    })
 
     configure_server("ts_ls", {
         cmd = {

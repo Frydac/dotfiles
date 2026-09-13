@@ -24,3 +24,4 @@ With only v2 enabled:
 7. Reload or resume the session; confirm the structured plan, non-sequential completion, and retry target are restored.
 8. Run `/steps clear`; confirm the plan and footer progress disappear and remain cleared after reload.
 9. In plan mode, produce a malformed plan (legacy numbered lines, missing body, skipped number, or unclosed fence); confirm it does not replace the active valid plan.
+10. Run `/next`; without choosing another mode, confirm read mode returns. Repeat and press `Alt+E` as the response finishes; confirm execute mode remains selected while plan progress still advances.

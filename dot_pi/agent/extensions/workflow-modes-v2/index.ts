@@ -51,6 +51,8 @@ export default function workflowModes(pi: ExtensionAPI): void {
 	let oneStepExecution = false;
 	let executingStep: number | undefined;
 	let stepCompleted = false;
+	let userModeRevision = 0;
+	let stepUserModeRevision: number | undefined;
 
 	function available(names: string[]): string[] {
 		const all = new Set(pi.getAllTools().map((tool) => tool.name));
@@ -109,6 +111,11 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		if (options.save !== false) persist();
 	}
 
+	function applyUserMode(newMode: WorkflowMode, ctx: ExtensionContext): void {
+		userModeRevision += 1;
+		applyMode(newMode, ctx);
+	}
+
 	async function chooseMode(ctx: ExtensionContext): Promise<void> {
 		const choice = await ctx.ui.select("Workflow mode", [
 			"read — inspect and ask questions safely",
@@ -116,7 +123,7 @@ export default function workflowModes(pi: ExtensionAPI): void {
 			"execute — unrestricted implementation",
 		]);
 		if (!choice) return;
-		applyMode(choice.split(" ")[0] as WorkflowMode, ctx);
+		applyUserMode(choice.split(" ")[0] as WorkflowMode, ctx);
 	}
 
 	function parseMode(value: string): WorkflowMode | undefined {
@@ -136,34 +143,34 @@ export default function workflowModes(pi: ExtensionAPI): void {
 				ctx.ui.notify("Usage: /mode read|plan|execute", "error");
 				return;
 			}
-			applyMode(selected, ctx);
+			applyUserMode(selected, ctx);
 		},
 	});
 
 	pi.registerCommand("read", {
 		description: "Enter safe read/review mode",
-		handler: async (_args, ctx) => applyMode("read", ctx),
+		handler: async (_args, ctx) => applyUserMode("read", ctx),
 	});
 
 	pi.registerCommand("plan", {
 		description: "Enter read-only planning mode",
-		handler: async (_args, ctx) => applyMode("plan", ctx),
+		handler: async (_args, ctx) => applyUserMode("plan", ctx),
 	});
 
 	pi.registerCommand("execute", {
 		description: "Enter unrestricted execution mode",
-		handler: async (_args, ctx) => applyMode("execute", ctx),
+		handler: async (_args, ctx) => applyUserMode("execute", ctx),
 	});
 
 	pi.registerShortcut("alt+m", {
 		description: "Cycle workflow mode",
 		handler: (ctx) =>
-			applyMode(mode === "read" ? "plan" : mode === "plan" ? "execute" : "read", ctx),
+			applyUserMode(mode === "read" ? "plan" : mode === "plan" ? "execute" : "read", ctx),
 	});
 
 	pi.registerShortcut("alt+e", {
 		description: "Enter unrestricted execution mode",
-		handler: (ctx) => applyMode("execute", ctx),
+		handler: (ctx) => applyUserMode("execute", ctx),
 	});
 
 	async function executePlanStep(stepIndex: number, ctx: ExtensionContext): Promise<void> {
@@ -180,6 +187,7 @@ export default function workflowModes(pi: ExtensionAPI): void {
 		oneStepExecution = true;
 		executingStep = stepIndex;
 		stepCompleted = false;
+		stepUserModeRevision = userModeRevision;
 		completedSteps.delete(stepIndex);
 		nextStep = nextPendingStep(planSteps, completedSteps);
 		applyMode("execute", ctx, { notify: false });
@@ -310,6 +318,7 @@ Make each step a coherent, reviewable implementation increment that the user can
 		if (!oneStepExecution) return;
 
 		const completed = stepCompleted;
+		const nextMode = stepUserModeRevision === userModeRevision ? "read" : mode;
 		if (completed && executingStep !== undefined) {
 			completedSteps.add(executingStep);
 			lastExecutedStep = executingStep;
@@ -318,11 +327,14 @@ Make each step a coherent, reviewable implementation increment that the user can
 		oneStepExecution = false;
 		executingStep = undefined;
 		stepCompleted = false;
-		applyMode("read", ctx, { notify: false });
+		stepUserModeRevision = undefined;
+		applyMode(nextMode, ctx, { notify: false });
+		const modeDetail = nextMode === "read" ? "READ mode restored" : `${nextMode.toUpperCase()} mode kept`;
+		const nextAction = nextMode === "read" ? "ask questions safely or use /next" : "use /next to continue";
 		ctx.ui.notify(
 			completed
-				? "Step finished. READ mode restored; ask questions safely or use /next."
-				: "Step interrupted. Progress unchanged; use /next to retry.",
+				? `Step finished. ${modeDetail}; ${nextAction}.`
+				: `Step interrupted. ${modeDetail}; progress unchanged; use /next to retry.`,
 			"info",
 		);
 	});

@@ -68,27 +68,10 @@ M.setup = function()
     -- (re)load file
     vim.api.nvim_set_keymap('n', '<leader><leader>x', '<cmd>w<cr><cmd>luafile %<cr>', {})
 
-    -- Satellite keeps separate extmarks, so clear them when diagnostics are disabled.
     local function set_diagnostics_enabled(enabled, bufnr)
         vim.diagnostic.enable(enabled, bufnr and { bufnr = bufnr } or nil)
 
-        if IsAvailable("satellite.config", false) and IsAvailable("satellite.view", false) then
-            local satellite_config = require("satellite.config")
-            satellite_config.user_config.handlers.diagnostic =
-                satellite_config.user_config.handlers.diagnostic or {}
-            if not bufnr then
-                satellite_config.user_config.handlers.diagnostic.enable = enabled
-            end
-
-            if not enabled then
-                local namespace = vim.api.nvim_create_namespace("satellite.Handler.diagnostic")
-                for _, buffer in ipairs(bufnr and { bufnr } or vim.api.nvim_list_bufs()) do
-                    if vim.api.nvim_buf_is_loaded(buffer) then
-                        vim.api.nvim_buf_clear_namespace(buffer, namespace, 0, -1)
-                    end
-                end
-            end
-
+        if IsAvailable("satellite.view", false) then
             require("satellite.view").schedule_refresh()
         end
     end
