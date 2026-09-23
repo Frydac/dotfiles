@@ -10,3 +10,7 @@ export QT_QPA_PLATFORMTHEME=qt6ct
 if [ -x "$HOME/.config/awesome/display-setup.sh" ]; then
     "$HOME/.config/awesome/display-setup.sh"
 fi
+
+# customize DPMS (Display Power Management Signaling):
+# Standby Suspend Off
+xset dpms 300 600 1200
