@@ -19,6 +19,44 @@ rakefile.rb
 .config/rofi/**
 .config/xsettingsd
 .config/xsettingsd/**
+{{ else if eq .profile "server" }}
+# Minimal CLI profile; desktop, editor and agent configs are excluded.
+.Xresources
+.Xresources/**
+.gtkrc-2.0
+.gtkrc-2.0/**
+.xprofile
+.xprofile/**
+.gdbinit
+.gdbinit/**
+.claude
+.claude/**
+.pi
+.pi/**
+.local/bin
+.local/bin/**
+.config/Kvantum
+.config/Kvantum/**
+.config/awesome
+.config/awesome/**
+.config/flameshot
+.config/flameshot/**
+.config/gtk-3.0
+.config/gtk-3.0/**
+.config/gtk-4.0
+.config/gtk-4.0/**
+.config/kitty
+.config/kitty/**
+.config/nvim
+.config/nvim/**
+.config/picom
+.config/picom/**
+.config/rofi
+.config/rofi/**
+.config/xsettingsd
+.config/xsettingsd/**
+.config/yazi
+.config/yazi/**
 {{ else if ne .profile "home" }}
-{{ fail "profile must be home or work" }}
+{{ fail "profile must be home, work or server" }}
 {{ end }}
