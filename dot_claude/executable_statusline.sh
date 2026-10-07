@@ -15,14 +15,9 @@ mapfile -t f < <(printf '%s' "$input" | jq -r '
 model=${f[0]:-Claude} effort=${f[1]:--} dir=${f[2]:--} session=${f[3]:--}
 ctx=${f[4]:--} h5=${f[5]:--} d7=${f[6]:--}
 
-ponytail=$("${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplaces/ponytail}/hooks/ponytail-statusline.sh" 2>/dev/null)
-caveman=$("$HOME/.claude/plugins/marketplaces/caveman/src/hooks/caveman-statusline.sh" 2>/dev/null)
-
 printf '%s' "$model"
 [ "$effort" != "-" ] && printf ' [%s]' "$effort"
 printf ' %s' "$dir"
 [ "$session" != "-" ] && printf ' (%s)' "$session"
 printf ' ctx:%s 5h:%s 7d:%s' "$ctx" "$h5" "$d7"
-[ -n "$ponytail" ] && printf ' %s' "$ponytail"
-[ -n "$caveman" ] && printf ' %s' "$caveman"
 printf '\n'
