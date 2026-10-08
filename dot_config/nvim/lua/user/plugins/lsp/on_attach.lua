@@ -84,6 +84,8 @@ function M.on_attach(client, bufnr)
     map("n", "<BS>gt", vim.lsp.buf.type_definition, opts)
     map("n", "<BS>gi", vim.lsp.buf.implementation, opts)
     map("n", "<BS>gr", vim.lsp.buf.references, opts)
+    map("n", "<BS>gci", vim.lsp.buf.incoming_calls, opts) -- similar to references for functions, only it doesn't show the definition?
+    map("n", "<BS>gco", vim.lsp.buf.outgoing_calls, opts)
     map("n", "<BS>rn", vim.lsp.buf.rename, opts)
     map("n", "<BS>rs", function()
         for _, attached_client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do

@@ -53,7 +53,23 @@ local function setup()
     -- vim.api.nvim_set_keymap('n', '<leader>fh', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
 
     vim.keymap.set('n', '<leader>ts', function() require("telescope.builtin").lsp_document_symbols() end, {})
-    vim.keymap.set('n', '<leader>tw', function() require("telescope.builtin").lsp_dynamic_workspace_symbols() end, {})
+    vim.keymap.set('n', '<leader>fs', function() require("fzf-lua").lsp_document_symbols() end, {})
+    -- vim.keymap.set('n', '<leader>tw', function() require("telescope.builtin").lsp_dynamic_workspace_symbols() end, {})
+    -- vim.keymap.set('n', '<leader>tw',
+    --     function()
+    --         require("telescope.builtin").lsp_dynamic_workspace_symbols({
+    --             fname_width = 45,
+    --             symbol_width = 40,
+    --             path_display = { "truncate" },
+    --         })
+    --     end)
+
+    -- much better rendering the width's are better and long paths and symbol names are actually
+    -- readalbe vs with telescope they are often not/truncated
+    vim.keymap.set('n', '<leader>tw',
+        function()
+            require("fzf-lua").lsp_live_workspace_symbols({ query_delay = 200 })
+        end)
     vim.keymap.set('n', '<leader>tg', function() require("telescope.builtin").git_status() end, {})
     vim.keymap.set('n', '<leader>th', function() require("telescope.builtin").help_tags() end, {})
     vim.keymap.set('n', '<leader>tq', function() require("telescope.builtin").quickfixhistory() end, {})
@@ -98,7 +114,8 @@ local function setup()
             , {})
     else
         vim.keymap.set('n', '<leader>ff', function() require("telescope.builtin").find_files() end, {})
-        vim.keymap.set('n', '<leader>fF', function() require("telescope.builtin").find_files({ no_ignore = true }) end, {})
+        vim.keymap.set('n', '<leader>fF', function() require("telescope.builtin").find_files({ no_ignore = true }) end,
+            {})
         vim.keymap.set(
             'n', '<leader>b',
             function() require("telescope.builtin").buffers({ sort_mru = true, tiebreak = function() return false end }) end
@@ -157,6 +174,7 @@ return {
         "<leader>tm", "<leader>tf", "<leader>tu", "<leader>to", "<leader>tc", "<leader>td",
         "<leader>ta", "<leader>tt", "<leader>tr", "<leader>ff", "<leader>b", "<leader>;",
         "<leader>fg", "<leader>fr", "<leader>en", "<leader>'", "<leader>fz", "<leader>te",
+        "<leader>fll"
     },
     dependencies = {
         "nvim-lua/plenary.nvim",
@@ -187,7 +205,8 @@ return {
                     vim.keymap.set('n', "<leader>tr", function()
                         require("telescope").extensions.live_grep_args.live_grep_args()
                     end)
-                    vim.keymap.set("n", "<leader>tR", function() require("telescope").extensions.live_grep_args.live_grep_args({ additional_args = { "--no-ignore", }, }) end)
+                    vim.keymap.set("n", "<leader>tR",
+                        function() require("telescope").extensions.live_grep_args.live_grep_args({ additional_args = { "--no-ignore", }, }) end)
                 end
             end,
         },

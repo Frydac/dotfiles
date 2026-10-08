@@ -33,7 +33,18 @@ return {
                     },
                 },
             },
+            server = {
+                default_settings = {
+                    ["rust-analyzer"] = {
+                        -- exclude hits from tests when searching for 'all references'
+                        references = {
+                            excludeTests = true,
+                        }
+                    }
+                },
+            },
         }
+
     end,
 }
 

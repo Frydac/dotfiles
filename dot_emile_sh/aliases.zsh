@@ -60,7 +60,60 @@ alias si='echo "git status --ignore-submodules=untracked --untracked-files=no"; 
 alias ss='echo "rake git:status"; rake git:status'
 alias ssc='echo "rake git:status[changes]"; rake git:status[changes]'
 alias ssu='echo "rake git:status[untracked]"; rake git:status[untracked]'
-alias gss='echo "git submodule status"; git submodule status'
+# alias gss='echo "git submodule status"; git submodule status'
+# git submodule status more or less, it shows the supermodule and submodules when it has changes or
+# when it has unpushed commits (it is ahead)
+unalias gss 2>/dev/null
+function gss() {
+    local status_args="-u -s -b"
+    local repo_root repo_name
+    repo_root=$(git rev-parse --show-toplevel) || return
+    repo_name=${repo_root:t}
+
+    if [[ "$1" == "-l" || "$1" == "--long" ]]; then
+        status_args="-u"
+    fi
+
+    # Superproject
+    local dirty ahead
+    dirty=$(git status --porcelain)
+    ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+
+    if [[ -n "$dirty" || "$ahead" -gt 0 ]]; then
+        printf "\033[1;35m=== %s ===\033[0m\n" "$repo_name"
+        git -c color.status=always status ${(z)status_args}
+    fi
+
+    # Submodules
+    local -x GSS_STATUS_ARGS="$status_args"
+
+    git submodule foreach --quiet --recursive '
+        dirty=$(git status --porcelain)
+        ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+
+        if [ -n "$dirty" ] || [ "$ahead" -gt 0 ]; then
+            printf "\n\033[1;36m=== %s ===\033[0m\n" "$displaypath"
+            git -c color.status=always status $GSS_STATUS_ARGS
+        fi
+    '
+}
+
+alias gssl='gss -l'
+
+# Push initialized submodules with commits ahead of their configured upstream.
+# Remove the old stash-pop alias when reloading this file in an existing shell.
+unalias gsp 2>/dev/null
+function gsp() {
+    git submodule foreach --quiet --recursive '
+        ahead=$(git rev-list --count "@{upstream}..HEAD" 2>/dev/null) || exit 0
+
+        if [ "$ahead" -gt 0 ]; then
+            printf "\033[1;36m=== %s (%s ahead) ===\033[0m\n" "$displaypath" "$ahead"
+            git push
+        fi
+    '
+}
+
 alias gssu='echo "git submodule summary"; git submodule summary'
 alias gsam='echo "git submodule add -b master"; git submodule add -b master'
 alias gsu='git submodule update --init --recursive --jobs 24'
@@ -69,7 +122,7 @@ alias gs='echo "git stash"; git stash'
 alias gsc='echo "git stash clear"; git stash clear'
 alias gsl='echo "git stash list"; git stash list'
 alias gsa='echo "git stash apply"; git stash apply'
-alias gsp='echo "git stash pop"; git stash pop'
+alias gspo='echo "git stash pop"; git stash pop'
 
 alias rqs='echo "rake qc:single"; rake qc:single'
 

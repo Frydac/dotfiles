@@ -1,5 +1,5 @@
 return {
-    'phaazon/mind.nvim',
+    'Selyss/mind.nvim',
     branch = 'v2.2',
     requires = { 'nvim-lua/plenary.nvim' },
     config = function()

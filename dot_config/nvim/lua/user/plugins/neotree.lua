@@ -53,8 +53,8 @@ return {
             enable_diagnostics = true,
             -- enable_normal_mode_for_inputs = false, -- Enable normal mode for input dialogs.
             open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- when opening files, do not use windows containing these filetypes or buftypes
-            sort_case_insensitive = false, -- used when sorting files and directories in the tree
-            sort_function = nil, -- use a custom function for sorting files and directories in the tree
+            sort_case_insensitive = false,                                     -- used when sorting files and directories in the tree
+            sort_function = nil,                                               -- use a custom function for sorting files and directories in the tree
             -- sort_function = function (a,b)
             --       if a.type == b.type then
             --           return a.path > b.path
@@ -223,8 +223,8 @@ return {
                 },
                 follow_current_file = { enabled = false }, -- This will find and focus the file in the active buffer every
                 -- time the current file is changed while the tree is open.
-                group_empty_dirs = false, -- when true, empty folders will be grouped together
-                hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
+                group_empty_dirs = false,                  -- when true, empty folders will be grouped together
+                hijack_netrw_behavior = "open_default",    -- netrw disabled, opening a directory opens neo-tree
                 -- in whatever position is specified in window.position
                 -- "open_current",  -- netrw disabled, opening a directory opens within the
                 -- window like netrw would, regardless of window.position
@@ -249,15 +249,15 @@ return {
             buffers = {
                 follow_current_file = { enabled = true }, -- This will find and focus the file in the active buffer every
                 -- time the current file is changed while the tree is open.
-                group_empty_dirs = true, -- when true, empty folders will be grouped together
+                group_empty_dirs = true,                  -- when true, empty folders will be grouped together
                 show_unloaded = true,
-                hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-                    -- in whatever position is specified in window.position
-                    -- "open_current",  -- netrw disabled, opening a directory opens within the
-                    -- window like netrw would, regardless of window.position
-                    -- "disabled",    -- netrw left alone, neo-tree does not handle opening dirs
+                hijack_netrw_behavior = "open_default",   -- netrw disabled, opening a directory opens neo-tree
+                -- in whatever position is specified in window.position
+                -- "open_current",  -- netrw disabled, opening a directory opens within the
+                -- window like netrw would, regardless of window.position
+                -- "disabled",    -- netrw left alone, neo-tree does not handle opening dirs
                 use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
-                    -- instead of relying on nvim autocmd events.
+                -- instead of relying on nvim autocmd events.
                 window = {
                     mappings = {
                         ["bd"] = "buffer_delete",
@@ -280,17 +280,30 @@ return {
                     }
                 }
             },
-
             event_handlers = {
-                {
-                    event = 'file_opened',
-                    handler = function(_file_path)
-                        -- auto close
-                        require('neo-tree').close_all()
-                    end
 
-                }
+                {
+                    event = "file_open_requested",
+                    handler = function()
+                        -- auto close
+                        -- vim.cmd("Neotree close")
+                        -- OR
+                        require("neo-tree.command").execute({ action = "close" })
+                    end
+                },
+
             },
+
+            -- event_handlers = {
+            --     {
+            --         event = 'file_opened',
+            --         handler = function(_file_path)
+            --             -- auto close
+            --             require('neo-tree').close_all()
+            --         end
+
+            --     }
+            -- },
             log_level = "trace",
             log_to_file = true,
         })
