@@ -58,7 +58,7 @@
     }
   },
   "tui": "fullscreen",
-  "theme": "{{ if eq .profile "work" }}light{{ else }}dark{{ end }}",
-  "skipAutoPermissionPrompt": true,
-  "editorMode": "vim"
+  "theme": "auto",
+  "editorMode": "vim",
+  "skipAutoPermissionPrompt": true
 }
