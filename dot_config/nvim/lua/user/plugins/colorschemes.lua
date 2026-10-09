@@ -264,11 +264,18 @@ local function setup_colorscheme_switching()
         force = true,
     })
 
-    -- Load the initial colorscheme after lazy.nvim finishes startup.
+    -- Load the initial colorscheme after lazy.nvim finishes startup,
+    -- using Neovim's terminal background detection.
     vim.api.nvim_create_autocmd("User", {
         pattern = "LazyDone",
         once = true,
-        callback = {{ if eq .profile "home" }}use_nightfox{{ else if eq .profile "work" }}use_cyberdream{{ else }}{{ fail "profile must be home or work" }}{{ end }},
+        callback = function()
+            if vim.o.background == "light" then
+                use_cyberdream()
+            else
+                use_nightfox()
+            end
+        end,
     })
 end
 
