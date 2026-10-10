@@ -1,0 +1,9 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := fromToml .chezmoi.stdin -}}
+{{- $items := list "model-with-reasoning" "current-dir" "project-name" "git-branch" "context-used" "five-hour-limit" "weekly-limit" -}}
+{{- $desired := $config | deepCopy | setValueAtPath "tui.status_line" $items | setValueAtPath "tui.status_line_use_colors" true -}}
+{{- if eq ($config | toToml) ($desired | toToml) -}}
+{{- .chezmoi.stdin -}}
+{{- else -}}
+{{ $desired | toToml }}
+{{- end -}}

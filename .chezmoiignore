@@ -31,6 +31,8 @@ rakefile.rb
 .gdbinit/**
 .claude
 .claude/**
+.codex
+.codex/**
 .pi
 .pi/**
 .local/bin

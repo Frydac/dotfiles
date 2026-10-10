@@ -51,6 +51,20 @@ chezmoi --refresh-externals=always apply ~/.config/awesome/awesome-wm-widgets
 
 Keep local widget changes in `~/.config/awesome/custom_widgets/`; do not edit the external checkout.
 
+## Codex status line
+
+Chezmoi manages the status-line items and colors in `~/.codex/config.toml` for
+`home` and `work` profiles. The modify template preserves other local settings,
+including project trust entries, model choices, and plugin state. Authentication,
+sessions, and caches stay local.
+
+Review or apply only this configuration with:
+
+```sh
+chezmoi diff ~/.codex/config.toml
+chezmoi apply ~/.codex/config.toml
+```
+
 ## Pi coding agent
 
 Install Pi separately on each machine:
