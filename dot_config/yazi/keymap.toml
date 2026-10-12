@@ -2,3 +2,23 @@
 on   = "<C-o>"
 run  = "plugin gio-open-with"
 desc = "Open hovered file with registered application"
+
+# Diff exactly two selected WAV files in Wavalyze (g, then w).
+[[mgr.prepend_keymap]]
+on = [ "g", "w" ]
+run = '''shell --orphan --
+set -- %s
+if [ "$#" -ne 2 ]; then
+    echo "Wavalyze diff: select exactly two WAV files." >&2
+    exit 1
+fi
+for file do
+    case "$file" in
+        *.[wW][aA][vV]) ;;
+        *) echo "Wavalyze diff: both files must be WAV files." >&2; exit 1 ;;
+    esac
+    [ -f "$file" ] || exit 1
+done
+exec /home/emile/.local/bin/wv diff "$1" "$2"
+'''
+desc = "Diff two selected WAV files with Wavalyze"

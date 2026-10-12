@@ -61,7 +61,7 @@ local plugins = {
     require("user.plugins.lualine"),
     require("user.plugins.luasnip"),
     -- require("user.plugins.markdown-composer"),
-    require("user.plugins.markdown-preview"),
+    require("user.plugins.mdkite"), -- Markdown preview
 
     -- require("user.plugins.marks"),
     require("user.plugins.matchup"),
