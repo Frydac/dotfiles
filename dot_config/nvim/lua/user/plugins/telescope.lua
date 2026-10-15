@@ -113,28 +113,40 @@ local function setup()
             function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
             , {})
     else
-        vim.keymap.set('n', '<leader>ff', function() require("telescope.builtin").find_files() end, {})
-        vim.keymap.set('n', '<leader>fF', function() require("telescope.builtin").find_files({ no_ignore = true }) end,
-            {})
-        vim.keymap.set(
-            'n', '<leader>b',
-            function() require("telescope.builtin").buffers({ sort_mru = true, tiebreak = function() return false end }) end
-            , {})
-        vim.keymap.set(
-            'n', '<leader>;',
-            function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
-            , {})
+
+        -- vim.keymap.set('n', '<leader>ff', function() require("telescope.builtin").find_files() end, {})
+        -- vim.keymap.set('n', '<leader>fF', function() require("telescope.builtin").find_files({ no_ignore = true }) end,
+        --     {})
+        -- vim.keymap.set(
+        --     'n', '<leader>b',
+        --     function() require("telescope.builtin").buffers({ sort_mru = true, tiebreak = function() return false end }) end
+        --     , {})
+        -- vim.keymap.set(
+        --     'n', '<leader>;',
+        --     function() require("telescope.builtin").oldfiles({ tiebreak = function() return false end }) end
+        --     , {})
+        -- vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})
+        -- vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>',
+        --     {})
+        vim.keymap.set('n', "<leader>tt", function() require("telescope.builtin").resume() end)
+
+        vim.keymap.set('n', '<leader>ff', function() require("fzf-lua").files() end, {})
+        vim.keymap.set('n', '<leader>fF', function() require("fzf-lua").files({ no_ignore = true }) end, {})
+        vim.keymap.set('n', '<leader>b', function() require("fzf-lua").buffers() end, {})
+        vim.keymap.set('n', '<leader>;', function() require("fzf-lua").oldfiles() end, {})
+        vim.keymap.set('n', '<leader>fg', function() require("fzf-lua").live_grep() end, {})
+        -- vim.keymap.set('n', '<leader>fr', function() require("fzf-lua").live_grep() end, {})
+        vim.keymap.set('n', "<leader>fr", function() require("fzf-lua").resume() end)
+
         -- vim.api.nvim_set_keymap('n', '<leader>fz', '<cmd>Files<cr>', {})
         vim.keymap.set('n', '<leader>fz', '<cmd>Files<cr>', {})
 
-        vim.keymap.set('n', '<leader>fll', function() require("fzf-lua").files() end, {})
-        vim.keymap.set('n', '<leader>fl;', function() require("fzf-lua").oldfiles() end, {})
-        vim.keymap.set('n', '<leader>flb', function() require("fzf-lua").buffers() end, {})
+        -- vim.keymap.set('n', '<leader>fll', function() require("fzf-lua").files() end, {})
+        -- vim.keymap.set('n', '<leader>fl;', function() require("fzf-lua").oldfiles() end, {})
+        -- vim.keymap.set('n', '<leader>flb', function() require("fzf-lua").buffers() end, {})
         -- vim.api.nvim_set_keymap('n', '<leader>;', '<cmd>lua require("telescope.builtin").oldfiles()<cr>', {})
     end
-    vim.api.nvim_set_keymap('n', '<leader>fg', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {})
-    vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>',
-        {})
+
 
     -- find nvim config files (standard location)
     -- vim.api.nvim_set_keymap('n', '<leader>tv',
@@ -159,7 +171,6 @@ local function setup()
     -- runs `:Telescope`
     vim.api.nvim_set_keymap('n', '<leader>ta', '<cmd>lua require("telescope.builtin").builtin()<cr>', {})
 
-    vim.keymap.set('n', "<leader>tt", function() require("telescope.builtin").resume() end)
 
     if IsAvailable('chezmoi') then
         vim.keymap.set('n', '<leader>te', function() require("chezmoi.pick").telescope() end)

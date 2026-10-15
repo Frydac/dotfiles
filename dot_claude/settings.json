@@ -58,7 +58,8 @@
     }
   },
   "tui": "fullscreen",
-  "theme": "auto",
+  "theme": "dark",
   "editorMode": "vim",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "agentPushNotifEnabled": true
 }
