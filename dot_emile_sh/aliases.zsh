@@ -61,8 +61,12 @@ alias ss='echo "rake git:status"; rake git:status'
 alias ssc='echo "rake git:status[changes]"; rake git:status[changes]'
 alias ssu='echo "rake git:status[untracked]"; rake git:status[untracked]'
 # alias gss='echo "git submodule status"; git submodule status'
-# git submodule status more or less, it shows the supermodule and submodules when it has changes or
-# when it has unpushed commits (it is ahead)
+# Show changed repositories, branches ahead of upstream, and unpublished commits.
+# Publication checks use locally known remote branches; fetch to refresh them.
+# Also exclude history covered by local tags, so tagged vendor releases (such as
+# Lua) are not flagged when their commits are absent from remote branch history.
+# This assumes tags are published: an unpushed local tag can hide local commits.
+# The separate upstream-ahead check still shows tracked branches needing a push.
 unalias gss 2>/dev/null
 function gss() {
     local status_args="-u -s -b"
@@ -75,13 +79,18 @@ function gss() {
     fi
 
     # Superproject
-    local dirty ahead
+    local dirty ahead unpublished
     dirty=$(git status --porcelain)
     ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+    unpublished=$(git rev-list --count HEAD --not --remotes --tags) || return
 
-    if [[ -n "$dirty" || "$ahead" -gt 0 ]]; then
+    if [[ -n "$dirty" || "$ahead" -gt 0 || "$unpublished" -gt 0 ]]; then
         printf "\033[1;35m=== %s ===\033[0m\n" "$repo_name"
         git -c color.status=always status ${(z)status_args}
+        if [[ "$unpublished" -gt 0 ]]; then
+            printf "Unpublished commits (%s; remote branches/local tags):\n" "$unpublished"
+            git -c color.ui=always log --oneline HEAD --not --remotes --tags
+        fi
     fi
 
     # Submodules
@@ -90,10 +99,15 @@ function gss() {
     git submodule foreach --quiet --recursive '
         dirty=$(git status --porcelain)
         ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+        unpublished=$(git rev-list --count HEAD --not --remotes --tags) || exit
 
-        if [ -n "$dirty" ] || [ "$ahead" -gt 0 ]; then
+        if [ -n "$dirty" ] || [ "$ahead" -gt 0 ] || [ "$unpublished" -gt 0 ]; then
             printf "\n\033[1;36m=== %s ===\033[0m\n" "$displaypath"
             git -c color.status=always status $GSS_STATUS_ARGS
+            if [ "$unpublished" -gt 0 ]; then
+                printf "Unpublished commits (%s; remote branches/local tags):\n" "$unpublished"
+                git -c color.ui=always log --oneline HEAD --not --remotes --tags
+            fi
         fi
     '
 }
