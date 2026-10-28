@@ -44,3 +44,55 @@ function adb_exo_log() {
     #         lnav
     fi
 }
+
+# copy the full path of a file to the clipboard
+cppath() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: cppath <filename>"
+        return 1
+    fi
+    local filepath
+    filepath=$(realpath "$1")
+    
+    if command -v wl-copy &> /dev/null; then
+        echo -n "$filepath" | wl-copy >/dev/null 2>&1 &!
+        echo "Copied (Wayland): $filepath"
+    elif command -v xclip &> /dev/null; then
+        echo -n "$filepath" | xclip -selection clipboard >/dev/null 2>&1 &!
+        echo "Copied (X11): $filepath"
+    else
+        echo "Error: Neither xclip nor wl-copy is installed."
+        return 1
+    fi
+}
+
+cpfa() {
+    local file
+    file=$(fzf --walker=file) || return
+    print -rn -- "${file:a}" | xclip -selection clipboard
+}
+
+cpf() {
+    local selected
+    # Use fzf to interactively select a file
+    selected=$(fzf)
+    
+    # Exit gracefully if the user pressed Esc or cancelled
+    if [[ -z "$selected" ]]; then
+        return 0
+    fi
+    
+    local filepath
+    filepath=$(realpath "$selected")
+    
+    if command -v wl-copy &> /dev/null; then
+        echo -n "$filepath" | wl-copy >/dev/null 2>&1 &!
+        echo "Copied (Wayland): $filepath"
+    elif command -v xclip &> /dev/null; then
+        echo -n "$filepath" | xclip -selection clipboard >/dev/null 2>&1 &!
+        echo "Copied (X11): $filepath"
+    else
+        echo "Error: Neither xclip nor wl-copy is installed."
+        return 1
+    fi
+}

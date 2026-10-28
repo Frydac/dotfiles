@@ -9,9 +9,12 @@ agent:
   # Temperature setting for AI model responses (0.0-1.0)
   temperature: 0.3
   # Model ID to use for the agent. See /models command to list available models.
-  modelId: openai-responses-api:gpt-5.6-sol
+  modelId: openai-responses-api:gpt-6.1-sol
+  # Maximum model requests in one agent run (one prompt). Guards against runaway
+  # loops. The ROVODEV_MAX_REQUESTS_PER_RUN environment variable overrides it.
+  maxRequestsPerRun: 5000
   # Optional model variant key selected from dynamic configuration.
-  modelVariant: medium
+  modelVariant: null
   # Per-model inference parameter overrides keyed by model ID.
   inferenceConfig: null
   # Enable the deep planning tool for complex task planning
@@ -36,6 +39,10 @@ agent:
 sessions:
   # Directory where session data is stored
   persistenceDir: /home/emile/.rovodev/sessions
+  # Largest session file, in MB, that can be restored. Larger sessions are
+  # skipped with a message. The ROVODEV_MAX_RESTORE_SIZE_MB environment variable
+  # overrides it.
+  maxRestoreSizeMb: 50
   # Enable session memory over prior sessions when enabled by dynamic
   # configuration
   enableSessionMemory: true
@@ -49,7 +56,10 @@ sessions:
 # Atlassian product integration settings
 atlassianConnections:
   # Global jira projects user is part of
-  jiraProjects: []
+  jiraProjects:
+  - url: https://auro-3d.atlassian.net/browse/A3E
+    key: A3E
+    id: '10013'
   # Directory where any local overrides are stored
   localOverridePath: .rovodev/atlassian_connections.json
   # Whether atlassian integration is enabled
@@ -102,6 +112,12 @@ console:
   # When enabled, prompts submitted while the agent is running are injected into
   # the next LLM request.
   steerMode: false
+  # Show the local time on your prompts in the chat, and a day divider when the
+  # date changes. 'prompts' (default) shows them, 'off' hides them.
+  messageTimestamps: prompts
+  # Clock format for prompt times: '24h' (default), '12h', or 'locale' to follow
+  # your system locale.
+  clockFormat: 24h
   # Terminal tab title settings
   terminalTitle:
     # Enable or disable automatic terminal tab title updates
@@ -128,6 +144,10 @@ mcp:
   allowedMcpServers: []
   # List of globally disabled MCP server signatures
   disabledMcpServers: []
+  # List of MCP server signatures the user turned on. Needed only for
+  # Integrations servers that ship turned off by default. disabledMcpServers
+  # takes precedence
+  enabledMcpServers: []
 
 # Tool and command permission settings
 toolPermissions:
@@ -151,44 +171,65 @@ toolPermissions:
     default: ask
     # List of specific bash commands with their permission settings
     commands:
-      # Filesystem and text inspection. These commands can read any file that
-      # the current OS user can access, but do not normally modify files.
-      - command: '^(ls|tree|pwd|file|stat|head|tail|cat|wc|du|df|readlink|realpath|basename|dirname)(\s.*)?$'
-        permission: allow
-      - command: '^(rg|grep|strings|diff|cmp|sha256sum|md5sum)(\s.*)?$'
-        permission: allow
-      - command: '^(sort|uniq|cut|tr|column)(\s.*)?$'
-        permission: allow
-      - command: '^(echo|printf)(\s.*)?$'
-        permission: allow
-
-      # Environment, executable, process, and package metadata inspection.
-      - command: '^(printenv|uname|whoami|id|which|whereis|type)(\s.*)?$'
-        permission: allow
-      - command: '^env$'
-        permission: allow
-      - command: '^date(\s+\+[^\s]+)?$'
-        permission: allow
-      - command: '^(ps|pgrep|lsof)(\s.*)?$'
-        permission: allow
-      - command: '^apt-cache(\s.*)?$'
-        permission: allow
-
-      # Read-only Git operations. Mutating operations continue to ask.
-      - command: '^git\s+(status|diff|log|show|blame|grep|ls-files|ls-tree|rev-parse|describe|shortlog)(\s.*)?$'
-        permission: allow
-      - command: '^git\s+branch\s+(--list|-l)(\s.*)?$'
-        permission: allow
-      - command: '^git\s+tag\s+--list(\s.*)?$'
-        permission: allow
-      - command: '^git\s+remote\s+(-v|show)(\s.*)?$'
-        permission: allow
-
-      # Harmless shell-script control fragments commonly checked separately.
-      - command: '^(do|done|then|else|fi|esac)$'
-        permission: allow
-      - command: '^set\s+-[eux]+$'
-        permission: allow
+    - command: ^(ls|tree|pwd|file|stat|head|tail|cat|wc|du|df|readlink|realpath|basename|dirname)(\s.*)?$
+      permission: allow
+    - command: ^(rg|grep|strings|diff|cmp|sha256sum|md5sum)(\s.*)?$
+      permission: allow
+    - command: ^(sort|uniq|cut|tr|column)(\s.*)?$
+      permission: allow
+    - command: ^(echo|printf)(\s.*)?$
+      permission: allow
+    - command: ^(printenv|uname|whoami|id|which|whereis|type)(\s.*)?$
+      permission: allow
+    - command: ^env$
+      permission: allow
+    - command: ^date(\s+\+[^\s]+)?$
+      permission: allow
+    - command: ^(ps|pgrep|lsof)(\s.*)?$
+      permission: allow
+    - command: ^apt-cache(\s.*)?$
+      permission: allow
+    - command: ^git\s+(status|diff|log|show|blame|grep|ls-files|ls-tree|rev-parse|describe|shortlog)(\s.*)?$
+      permission: allow
+    - command: ^git\s+branch\s+(--list|-l)(\s.*)?$
+      permission: allow
+    - command: ^git\s+tag\s+--list(\s.*)?$
+      permission: allow
+    - command: ^git\s+remote\s+(-v|show)(\s.*)?$
+      permission: allow
+    - command: ^(done|then|else|fi|esac)$
+      permission: allow
+    - command: do(\s.*)?
+      permission: allow
+    - command: if(\s.*)?
+      permission: allow
+    - command: then(\s.*)?
+      permission: allow
+    - command: ^set\s+-[eux]+$
+      permission: allow
+    - command: git(\s.*)?
+      permission: allow
+    - command: test(\s.*)?
+      permission: allow
+    - command: command(\s.*)?
+      permission: allow
+    - command: find(\s.*)?
+      permission: allow
+    - command: xargs(\s.*)?
+      permission: allow
+    - command: ruby(\s.*)?
+      permission: allow
+    - command: for ds in album primary_downmix secondary_downmix
+      permission: allow
+    - command: do DATA_SET="$ds" LEVELS=-102.3,-102.4 auro_j=2 ruby core/build/ruby/build/runner.rb
+        rake story/a3denc716.rb story:test > "tmp_rovodev_a3denc716_${ds}.log" 2>&1
+      permission: allow
+    - command: sed(\s.*)?
+      permission: allow
+    - command: nl(\s.*)?
+      permission: allow
+    - command: clang-format(\s.*)?
+      permission: allow
     # Run bash commands in a sandboxed environment - currently available for
     # MacOS and Linux only. Enabling this option for Windows will prevent the
     # agent from running powershell commands.
