@@ -107,6 +107,18 @@ local function configure_servers()
 
     configure_server("java_language_server", {
         cmd = { "/home/emile/.local/share/java-language-server-patched/lang_server_linux_system.sh" },
+        root_dir = function(bufnr, on_dir)
+            if require("user.plugins.lsp.jdtls").project_root(bufnr) then
+                return
+            end
+            local root = vim.fs.root(bufnr, {
+                "gradlew", "settings.gradle", "settings.gradle.kts",
+                "build.gradle", "build.gradle.kts", "pom.xml", ".git",
+            })
+            if root then
+                on_dir(root)
+            end
+        end,
         root_markers = {
             "gradlew",
             "settings.gradle",
@@ -190,6 +202,7 @@ local function setup_lsp()
     })
 
     configure_servers()
+    require("user.plugins.lsp.jdtls").setup(capabilities)
     enable_servers({
         "solargraph",
         "clangd",
@@ -209,6 +222,7 @@ local lsp_config = {
     "neovim/nvim-lspconfig",
     dependencies = {
         "williamboman/mason.nvim",
+        "mfussenegger/nvim-jdtls",
         "williamboman/mason-lspconfig.nvim",
         "WhoIsSethDaniel/mason-tool-installer.nvim",
         {

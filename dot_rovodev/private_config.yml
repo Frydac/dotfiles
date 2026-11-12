@@ -268,4 +268,10 @@ smartTasks:
 # Event Hooks configuration. See /hooks command to list available events.
 eventHooks:
   logFile: /home/emile/.rovodev/event_hooks.log
-  events: []
+  events:
+    - name: on_complete
+      commands:
+        - command: "notify-send --app-name='Rovo Dev' 'Rovo Dev' 'Agent turn finished — check the terminal'"
+    - name: on_tool_permission
+      commands:
+        - command: "notify-send --app-name='Rovo Dev' --urgency=critical 'Rovo Dev' 'Your approval is needed in the terminal'"
