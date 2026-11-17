@@ -3,7 +3,12 @@ version: 1
 # Agent behavior and model settings
 agent:
   # Additional system prompt to append to the agent's default system prompt
-  additionalSystemPrompt: null
+  additionalSystemPrompt: When referring to source code, use absolute path:line or
+    path:line:column references formatted for Kitty hints. Put each reference on its
+    own line or surround it with whitespace. Do not attach braces, parentheses, brackets,
+    backticks, Markdown link syntax, or trailing punctuation to the reference. After
+    code changes, list every created or modified source/build file using this format
+    with a useful implementation line number.
   # Enable streaming responses from the AI model
   streaming: true
   # Temperature setting for AI model responses (0.0-1.0)
@@ -219,16 +224,84 @@ toolPermissions:
       permission: allow
     - command: ruby(\s.*)?
       permission: allow
-    - command: for ds in album primary_downmix secondary_downmix
-      permission: allow
-    - command: do DATA_SET="$ds" LEVELS=-102.3,-102.4 auro_j=2 ruby core/build/ruby/build/runner.rb
-        rake story/a3denc716.rb story:test > "tmp_rovodev_a3denc716_${ds}.log" 2>&1
+    - command: ^for\s[\s\S]*$
       permission: allow
     - command: sed(\s.*)?
       permission: allow
     - command: nl(\s.*)?
       permission: allow
     - command: clang-format(\s.*)?
+      permission: allow
+    - command: unzip(\s.*)?
+      permission: allow
+    - command: rake(\s.*)?
+      permission: allow
+    - command: timeout(\s.*)?
+      permission: allow
+    - command: python3(\s.*)?
+      permission: allow
+    - command: ninja(\s.*)?
+      permission: allow
+    - command: g++(\s.*)?
+      permission: allow
+    - command: ./gradlew :lib-auro:externalNativeBuildDebug --console=plain > tmp_rovodev_sdk_build.log
+        2>&1
+      permission: allow
+    - command: exit(\s.*)?
+      permission: allow
+    - command: kill(\s.*)?
+      permission: allow
+    - command: cmake(\s.*)?
+      permission: allow
+    - command: MP4Box(\s.*)?
+      permission: allow
+    - command: nm(\s.*)?
+      permission: allow
+    - command: gcc(\s.*)?
+      permission: allow
+    - command: ./tmp_rovodev_sdk_probe(\s.*)?
+      permission: allow
+    - command: mkdir(\s.*)?
+      permission: allow
+    - command: make(\s.*)?
+      permission: allow
+    - command: pkg-config(\s.*)?
+      permission: allow
+    - command: chezmoi(\s.*)?
+      permission: allow
+    - command: tee(\s.*)?
+      permission: allow
+    - command: touch(\s.*)?
+      permission: allow
+    - command: no(\s.*)?
+      permission: allow
+    - command: build-linux/bin/ase-server(\s.*)?
+      permission: allow
+    - command: ldd(\s.*)?
+      permission: allow
+    - command: clangd(\s.*)?
+      permission: allow
+    - command: ctest(\s.*)?
+      permission: allow
+    - command: chmod(\s.*)?
+      permission: allow
+    - command: ffprobe(\s.*)?
+      permission: allow
+    - command: gem(\s.*)?
+      permission: allow
+    - command: cp(\s.*)?
+      permission: allow
+    - command: curl(\s.*)?
+      permission: allow
+    - command: java(\s.*)?
+      permission: allow
+    - command: gradle(\s.*)?
+      permission: allow
+    - command: wait(\s.*)?
+      permission: allow
+    - command: javac(\s.*)?
+      permission: allow
+    - command: unset(\s.*)?
       permission: allow
     # Run bash commands in a sandboxed environment - currently available for
     # MacOS and Linux only. Enabling this option for Windows will prevent the
@@ -246,6 +319,9 @@ toolPermissions:
   - /home/emile/repos/root-all
   - /home/emile/notes
   - /home/emile/.rovodev/config.yml
+  - /home/emile/repos/cts-all
+  - /home/emile/repos/root-all-cpy
+  - /home/emile/repos/androidx-media
 
 announcementTracking:
   announcementViewCounts: {}
@@ -269,9 +345,11 @@ smartTasks:
 eventHooks:
   logFile: /home/emile/.rovodev/event_hooks.log
   events:
-    - name: on_complete
-      commands:
-        - command: "notify-send --app-name='Rovo Dev' 'Rovo Dev' 'Agent turn finished — check the terminal'"
-    - name: on_tool_permission
-      commands:
-        - command: "notify-send --app-name='Rovo Dev' --urgency=critical 'Rovo Dev' 'Your approval is needed in the terminal'"
+  - name: on_complete
+    commands:
+    - command: "notify-send --app-name='Rovo Dev' 'Rovo Dev' 'Agent turn finished\
+        \ \u2014 check the terminal'"
+  - name: on_tool_permission
+    commands:
+    - command: notify-send --app-name='Rovo Dev' --urgency=critical 'Rovo Dev' 'Your
+        approval is needed in the terminal'
