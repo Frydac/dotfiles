@@ -1,74 +1,87 @@
-local jdtls = require('jdtls')
-local home = os.getenv('HOME')
+local M = {}
 
--- Path to your Android SDK
-local android_sdk = home .. '/Android/Sdk'
+-- Only opt repositories with this editor init script into the Android setup.
+function M.project_root(bufnr)
+    local root = vim.fs.root(bufnr, { "settings.gradle", "settings.gradle.kts", "gradlew" })
+    if root and vim.uv.fs_stat(root .. "/tools/jdtls-android.gradle") then
+        return root
+    end
+end
 
--- Path to the ExoPlayer demo root (adjust based on your clone location)
-local project_root = vim.fn.getcwd() -- or hardcode like '/path/to/ExoPlayer/demos/main'
+function M.start(capabilities)
+    local root = M.project_root(0)
+    if not root then
+        return
+    end
 
--- jdtls binary path (installed via Mason)
-local jdtls_path = home .. '/.local/share/nvim/mason/packages/jdtls'
-local launcher = vim.fn.glob(jdtls_path .. '/plugins/org.eclipse.equinox.launcher_*.jar')
+    local jdtls = require("jdtls")
+    local version = "1.64.0-202611091900"
+    local server = vim.fn.stdpath("data") .. "/jdtls/" .. version .. "/bin/jdtls"
+    local cache = vim.fn.stdpath("cache") .. "/jdtls/" .. version .. "/" .. vim.fn.sha256(root):sub(1, 16)
+    if vim.fn.executable(server) ~= 1 then
+        vim.notify("Missing JDT LS: " .. server, vim.log.levels.ERROR)
+        return
+    end
+    vim.fn.mkdir(cache, "p")
 
--- Configuration
-local config = {
-  cmd = {
-    'java',
-    '-Declipse.application=org.eclipse.jdt.ls.core.id1',
-    '-Dosgi.bundles.defaultStartLevel=4',
-    '-Declipse.product=org.eclipse.jdt.ls.core.product',
-    '-Dlog.protocol=true',
-    '-Dlog.level=ALL',
-    '-Xms1g',
-    '--add-modules=ALL-SYSTEM',
-    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '-jar', launcher,
-    '-configuration', jdtls_path .. '/config_linux', -- Use config_mac or config_win if on macOS/Windows
-    '-data', home .. '/.cache/jdtls/workspace' .. vim.fn.fnamemodify(project_root, ':p:h:t'),
-  },
-  root_dir = project_root, -- Or use jdtls.setup.find_root({'gradlew', '.git', 'build.gradle'}),
-
-  settings = {
-    java = {
-      home = '/usr/lib/jvm/java-17-openjdk', -- Your Java 17 path
-      autobuild = { enabled = true },
-      import = {
-        gradle = { enabled = true }, -- Enable Gradle support
-        maven = { enabled = false }, -- Disable Maven if not needed
-      },
-      configuration = {
-        runtimes = {
-          {
-            name = 'JavaSE-17',
-            path = '/usr/lib/jvm/java-17-openjdk',
-          },
+    local config = {
+        cmd = {
+            server,
+            "--java-executable",
+            "/usr/lib/jvm/java-27-openjdk/bin/java",
+            "--jvm-arg=-Xmx2g",
+            "-configuration",
+            cache .. "/config",
+            "-data",
+            cache .. "/workspace",
         },
-      },
-    },
-  },
+        -- Gradle 7.5 must run on Java 17, independently of the server JVM.
+        cmd_env = { JAVA_HOME = "/usr/lib/jvm/java-17-openjdk" },
+        root_dir = root,
+        capabilities = capabilities,
+        settings = {
+            java = {
+                jdt = { ls = { androidSupport = { enabled = true } } },
+                import = {
+                    gradle = {
+                        enabled = true,
+                        wrapper = { enabled = true },
+                        java = { home = "/usr/lib/jvm/java-17-openjdk" },
+                        arguments = "--init-script tools/jdtls-android.gradle",
+                    },
+                },
+                settings = { url = vim.uri_from_fname(root .. "/tools/jdtls.prefs") },
+                configuration = {
+                    updateBuildConfiguration = "automatic",
+                    runtimes = {
+                        { name = "JavaSE-1.8", path = "/usr/lib/jvm/java-8-openjdk" },
+                        { name = "JavaSE-17", path = "/usr/lib/jvm/java-17-openjdk", default = true },
+                    },
+                },
+            },
+        },
+        init_options = {
+            extendedClientCapabilities = jdtls.extendedClientCapabilities,
+        },
+    }
+    -- JDT LS reads these during initialize, before didChangeConfiguration.
+    config.init_options.settings = config.settings
+    config.init_options.workspaceFolders = { vim.uri_from_fname(root) }
+    jdtls.start_or_attach(config)
+end
 
-  -- Extend classpath for Android SDK and ExoPlayer dependencies
-  init_options = {
-    extendedClientCapabilities = jdtls.extendedClientCapabilities,
-    bundles = {}, -- Add Lombok or other bundles if needed
-  },
+function M.setup(capabilities)
+    local group = vim.api.nvim_create_augroup("user-jdtls-android", { clear = true })
+    vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = "java",
+        callback = function()
+            M.start(capabilities)
+        end,
+    })
+    if vim.bo.filetype == "java" then
+        M.start(capabilities)
+    end
+end
 
-  on_attach = function(client, bufnr)
-    -- Enable standard LSP features
-    require('jdtls.setup').add_commands()
-    jdtls.setup_dap() -- Optional: for debugging
-    print('jdtls attached to buffer')
-  end,
-}
-
--- Add Android SDK classpath (platform and libraries)
-local android_jars = {
-  android_sdk .. '/platforms/android-34/android.jar', -- Adjust android-XX based on your SDK
-}
-config.cmd[#config.cmd + 1] = '-cp'
-config.cmd[#config.cmd + 1] = table.concat(android_jars, ':')
-
--- Start jdtls
-jdtls.start_or_attach(config)
+return M

@@ -34,7 +34,7 @@ local plugins = {
     -- require("user.plugins.codeium"),
     require("user.plugins.supermaven"),
     -- require("user.plugins.codecompanion"),
-    -- require("user.plugins.csvview"), -- markdown todo stuff
+    require("user.plugins.csvview"), -- markdown todo stuff
     require("user.plugins.checkmate"), -- markdown todo stuff
     require("user.plugins.color_syntax"),
     -- require("user.plugins.mini.comment"),
@@ -44,6 +44,7 @@ local plugins = {
     require("user.plugins.dap"),
     require("user.plugins.dial"),  -- additional <c-x>, <c-a> increase/decrease functionality
     require("user.plugins.diffview"),
+    require("user.plugins.diffbandit"),
     require("user.plugins.codediff"),
 
     require("user.plugins.flash"), -- extended s/f find functionality

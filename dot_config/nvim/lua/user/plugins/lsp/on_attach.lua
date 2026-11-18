@@ -113,6 +113,20 @@ function M.on_attach(client, bufnr)
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
         end, { noremap = true, silent = true, buffer = bufnr, desc = "[t]oggle inlay [h]ints" })
     end
+
+    -- JDT LS extensions provided by nvim-jdtls.
+    if client.name == "jdtls" then
+        local jdtls = require("jdtls")
+        map("n", "<BS>gs", jdtls.super_implementation,
+            vim.tbl_extend("force", opts, { desc = "jdtls: go to [s]uper implementation" }))
+        -- Same as :JdtUpdateConfig / :JdtUpdateConfig!. The older single-project
+        -- update_project_config() fails with "Internal error" here.
+        map("n", "<BS>ju", jdtls.update_projects_config,
+            vim.tbl_extend("force", opts, { desc = "jdtls: [u]pdate project configs (pick)" }))
+        map("n", "<BS>jU", function()
+            jdtls.update_projects_config({ select_mode = "all" })
+        end, vim.tbl_extend("force", opts, { desc = "jdtls: [U]pdate all project configs" }))
+    end
 end
 
 function M.setup()
