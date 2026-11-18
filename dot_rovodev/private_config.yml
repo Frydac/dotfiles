@@ -94,7 +94,7 @@ console:
   # For example, set 'STARSHIP_SHELL=rovo dev starship prompt' to use Starship.
   customCommandPrompt: null
   # Color theme for syntax highlighting, background color, etc.
-  theme: textual-dark (bg)
+  theme: textual-light (bg)
   # Maximum width of the console output in characters, or 'fill' to fill the
   # terminal width
   maxOutputWidth: 120
@@ -229,6 +229,14 @@ toolPermissions:
     - command: nl(\s.*)?
       permission: allow
     - command: clang-format(\s.*)?
+      permission: allow
+    - command: exit(\s.*)?
+      permission: allow
+    - command: bash(\s.*)?
+      permission: allow
+    - command: acli(\s.*)?
+      permission: allow
+    - command: core/build/cache/cook/gcc-x64-abi_elf-native_true-release-gstreamer_1-webkit_41-9a9fee85/cli.bb8(\s.*)?
       permission: allow
     # Run bash commands in a sandboxed environment - currently available for
     # MacOS and Linux only. Enabling this option for Windows will prevent the
